@@ -1092,99 +1092,16 @@ namespace FF3LE
             offset = 0;
             for (int i = 0; i < Model.NUM_LOC_NAMES; i++)
             {
-                string mes = messageNames[i];
-                List<char> charList = mes.ToList();
-                byte[] result = new byte[charList.Count + 1];
-                byte[] final;
+                byte[] nameArray = SetLocNameArray(messageNames[i], i);
 
-                if (!(mes.Equals("") || mes.Equals(" ") || mes.Length == 0))
-                {
-                    int j = 0;
-                    for (j = 0; j < charList.Count; j++)
-                    {
-                        string pattern = "";
-                        int position = 0;
+                // For DTE optimization
+                //byte[] nameArray = SetLocNameArrayDTE(messageNames[i]);
 
-                        if (charList[j].Equals('<'))
-                        {
-                            int k = j - 1;
-
-                            do
-                            {
-                                k++;
-                                pattern += charList[k];
-                            } while (!charList[k].Equals('>'));
-                            
-                        }
-                        else
-                        {
-                            string twoPattern = "";
-
-                            if (j != charList.Count - 1)
-                            {
-                                twoPattern = charList[j] + charList[j + 1].ToString();
-                            }
-
-                            for (int l = 0; l < dialogueTable.Length; l++)
-                            {
-                                if (twoPattern.Equals(dialogueTable[l]))
-                                {
-                                    position = l;
-                                    pattern = twoPattern;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (pattern.Equals("") || pattern.Length > 2)
-                        {
-                            if (pattern.Equals(""))
-                            {
-                                pattern = charList[j].ToString();
-                            }
-
-                            for (int m = 0; m < dialogueTable.Length; m++)
-                            {
-                                if (pattern.Equals(dialogueTable[m]))
-                                {
-                                    position = m;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (position != 0)
-                        {
-                            result[j] = (byte) position;
-                        }
-                        else
-                        {
-                            result[j] = 0xFF;
-                        }
-
-                        if (pattern.Length > 1)
-                        {
-                            for (int n = 0; n < pattern.Length - 1; n++)
-                            {
-                                charList.RemoveAt(j + 1);
-                            }
-                        }
-                    }
-
-                    final = new byte[charList.Count + 1];
-                    Buffer.BlockCopy(result, 0, final, 0, final.Length);
-                    final[final.Length - 1] = 0x00;
-                }
-                else
-                {
-                    final = new byte[] { 0 };
-                }
-
-                if (offset + final.Length < Model.SIZE_LOC_NAMES)
+                if (offset + nameArray.Length < Model.SIZE_LOC_NAMES)
                 {
                     ByteManage.SetShort(model.Data, i * 2 + Model.BASE_LOC_NAMES_PTR, (ushort)offset);
-                    ByteManage.SetByteArray(model.Data, offset + Model.BASE_LOC_NAMES, final);
-                    offset += result.Length;
+                    ByteManage.SetByteArray(model.Data, offset + Model.BASE_LOC_NAMES, nameArray);
+                    offset += nameArray.Length;
                     pBar.PerformStep("SAVING LOCATION NAME 0x" + i.ToString("X2"));
                 }
                 else
@@ -1201,6 +1118,143 @@ namespace FF3LE
             pBar.Close();
         }
 
+        private byte[] SetLocNameArray(string s, int index)
+        {
+            char[] ch = s.ToCharArray();
+            byte[] tc = new byte[ch.Length + 1];
+            bool error = false;
+
+            if (!(s.Equals("") || s.Equals(" ") || s.Length == 0))
+            {
+                for (int j = 0; j < ch.Length; j++)
+                {
+                    if (!error)
+                    {
+                        for (int k = 0; k < dialogueTable.Length; k++)
+                        {
+                            if (ch[j].ToString().Equals(dialogueTable[k]))
+                            {
+                                tc[j] = (byte)k;
+                                k = dialogueTable.Length;
+
+                                if (k == dialogueTable.Length - 1)
+                                {
+                                    MessageBox.Show("Unable to save message name " + index.ToString("X3") + " \"" +
+                                                    messageNames[index] +
+                                                    "\"). Default entry \"INN\" will be saved instead.");
+
+                                    error = true;
+                                }
+                            }
+                        }
+                    }
+
+                    tc[tc.Length - 1] = 0;
+                }
+
+                if (error)
+                {
+                    tc = Expansion.DEFAULT_LOC_NAME;
+                }
+            }
+            else
+            {
+                tc = new byte[] { 0x00 };
+            }
+
+            return tc;
+        }
+        private byte[] SetLocNameArrayDTE(string s)
+        {
+            List<char> charList = s.ToList();
+            byte[] result = new byte[charList.Count + 1];
+            byte[] final;
+
+            if (!(s.Equals("") || s.Equals(" ") || s.Length == 0))
+            {
+                int j = 0;
+                for (j = 0; j < charList.Count; j++)
+                {
+                    string pattern = "";
+                    int position = 0;
+
+                    if (charList[j].Equals('<'))
+                    {
+                        int k = j - 1;
+
+                        do
+                        {
+                            k++;
+                            pattern += charList[k];
+                        } while (!charList[k].Equals('>'));
+
+                    }
+                    else
+                    {
+                        string twoPattern = "";
+
+                        if (j != charList.Count - 1)
+                        {
+                            twoPattern = charList[j] + charList[j + 1].ToString();
+                        }
+
+                        for (int l = 0; l < dialogueTable.Length; l++)
+                        {
+                            if (twoPattern.Equals(dialogueTable[l]))
+                            {
+                                position = l;
+                                pattern = twoPattern;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (pattern.Equals("") || pattern.Length > 2)
+                    {
+                        if (pattern.Equals(""))
+                        {
+                            pattern = charList[j].ToString();
+                        }
+
+                        for (int m = 0; m < dialogueTable.Length; m++)
+                        {
+                            if (pattern.Equals(dialogueTable[m]))
+                            {
+                                position = m;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (position != 0)
+                    {
+                        result[j] = (byte)position;
+                    }
+                    else
+                    {
+                        result[j] = 0xFF;
+                    }
+
+                    if (pattern.Length > 1)
+                    {
+                        for (int n = 0; n < pattern.Length - 1; n++)
+                        {
+                            charList.RemoveAt(j + 1);
+                        }
+                    }
+                }
+
+                final = new byte[charList.Count + 1];
+                Buffer.BlockCopy(result, 0, final, 0, final.Length);
+                final[final.Length - 1] = 0x00;
+            }
+            else
+            {
+                final = new byte[] {0};
+            }
+
+            return final;
+        }
         private string[] GetLevelNames()
         { 
             if (Model.IsExpanded)
@@ -2892,9 +2946,9 @@ namespace FF3LE
         private void ValidateMessageName()
         {
             string mess = tbMessageName.Text;
-            MatchCollection matches = Bits.GetMatchCollection(mess);
+            //MatchCollection matches = Bits.GetMatchCollection(mess);
 
-            if (matches.Count <= 37)
+            if (mess.Length <= 37)
             {
                 if (!Bits.IsValidMapName(mess))
                 {

@@ -27,7 +27,7 @@ namespace FF3LE
             return Regex.IsMatch(id, pattern, RegexOptions.CultureInvariant);
         }
 
-        public static bool IsValidMapName(string name)
+        public static bool IsValidMapNameDTE(string name)
         {
             string pattern =
                 @"[A-Za-z0-9]|\x20|\*|!|\?|:|\\|'|-|\.|,|\.\.\.|;|#|\+|\(|\)|%|~|@|=|<TERRA>|<LOCKE>|<CYAN>|<SHADOW>|<EDGAR>|<SABIN>|<CELES>|<STRAGO>|<RELM>|<SETZER>|<MOG>|<GAU>|<GOGO>|<UMARO>|<note>|<pearl>|<death>|<lit>|<wind>|<earth>|<ice>|<fire>|<water>|<poison>";
@@ -35,7 +35,15 @@ namespace FF3LE
             return Regex.IsMatch(name, pattern, RegexOptions.CultureInvariant);
         }
 
-        public static MatchCollection GetMatchCollection(string message)
+        public static bool IsValidMapName(string name)
+        {
+            string pattern =
+                @"[A-Za-z0-9]|\x20|\*|!|\?|:|\\|'|-|\.|,|;|#|\+|\(|\)|%|~|@|=";
+
+            return Regex.IsMatch(name, pattern, RegexOptions.CultureInvariant);
+        }
+
+        public static MatchCollection GetMatchCollectionDTE(string message)
         {
             string pattern =
                 @"<TERRA>|<LOCKE>|<CYAN>|<SHADOW>|<EDGAR>|<SABIN>|<CELES>|<STRAGO>|<RELM>|<SETZER>|<MOG>|<GAU>|<GOGO>|<UMARO>|<note>|74|75|<pearl>|<death>|<lit>|<wind>|<earth>|<ice>|<fire>|<water>|<poison>|e\x20|\x20t|:\x20|th|t\x20|he|s\x20|er|\x20a|re|in|ou|d\x20|\x20w|\x20s|an|o\x20|\x20h|\x20o|r\x20|n\x20|at|to|\x20i|,\x20|ve|ng|ha|\x20m|Th|st|on|yo|\x20b|me|\x20y|y\x20|en|it|ar|ll|ea|I\x20|ed|\x20f|hi|is|es|or|l\x20|\x20c|ne|'s|nd|le|se|\x20I|a\x20|te|\x20l|pe|as|ur|u\x20|al|\x20p|g\x20|om|\x20d|f\x20|\x20g|ow|rs|be|ro|us|ri|wa|we|Wh|et|\x20r|nt|m\x20|ma|I'|li|ho|of|Yo|h\x20|\x20n|ee|de|so|gh|ca|ra|n'|ta|ut|el|!\x20|fo|ti|We|lo|e!|ld|no|ac|ce|k\x20|\x20u|oo|ke|ay|w\x20|!!|ag|il|ly|co|\.\x20|ch|go|ge";
