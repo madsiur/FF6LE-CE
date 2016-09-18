@@ -121,7 +121,7 @@
     <value>17, 17</value>
   </metadata>
   <data name="richTextBox2.Text" xml:space="preserve">
-    <value>FF6LE Rogue CE, Version 0.3
+    <value>FF6LE Rogue CE, Version 0.4
 Copyright © 2016  d3tl4 &amp; giangurgolo
 "Rogue Build" for interoperability with FF3usME 6.7 by Lord J (2013)
 "CE Build" for various expansions by madsiur (2016)
@@ -132,7 +132,7 @@ Imzogelmo - provided information on some data, discovered many bugs with pre-rel
 Yousei - FF3Edit source code used for (de)compression
 sleepydude - map editor helped find some data
 Lenophis - provided information on some data
-B-Run - beta tester of experimental CE build
+B-Run &amp; James White - beta testers of experimental CE build
 Gi Nattak - beta tester for Rogue Build
 </value>
   </data>

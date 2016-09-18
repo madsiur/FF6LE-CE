@@ -250,19 +250,14 @@ namespace FF3LE
 
             if (!error)
             {
-                if (dataBank > 0xC0 && dataBank > Bits.ToHiROM(size))
-                {
-                    message = "Your HiROM data bank cannot be higher than your filesize.\n\n Current filesize: $" + strSize;
-                    error = true;
-                }
-                else if (dataBank > 0x00 && dataBank < 0x70 && dataBank > Bits.ToAbs(size))
+                if (dataBank < 0x70 && dataBank > Bits.ToAbs(size))
                 {
                     message = "Your data bank cannot be higher than your filesize.\n\n Current filesize: $" + strSize;
                     error = true;
                 }
                 else if (dataBank >= 0x70 && dataBank < 0xC0)
                 {
-                    message = "Invalid data bank! Bank must be in the $00-$6F or $C0-$>FF range.";
+                    message = "Invalid data bank! Bank must be in the $00-$6F or $C0-$FF range.";
                     error = true;
                 }
                 else if (dataBank == 0xDA || dataBank == 0x1A)
@@ -274,12 +269,12 @@ namespace FF3LE
 
             if (!error)
             {
-                if (tilemapBank > 0xC0 && tilemapBank > Bits.ToHiROM(size) - numBanks - 1)
+                if (tilemapBank > 0xC0 && pc.GetFileSize() == 0x400000 && tilemapBank > Bits.ToHiROM(size) - numBanks - 1)
                 {
                     message = "Your HiROM Tilemaps starting bank added to the number of banks cannot be higher than filesize.\n\n Current filesize: $" + strSize + ", Number of banks: " +numBanks +  ".";
                     error = true;
                 }
-                else if (tilemapBank > 0x00 && tilemapBank < 0x70 && tilemapBank > Bits.ToAbs(size) - numBanks - 1)
+                else if (tilemapBank < 0x70 && tilemapBank > Bits.ToAbs(size) - numBanks - 1)
                 {
                     message = "Your Tilemaps starting bank added to the number of banks cannot be higher than your filesize.\n\n Current filesize: $" + strSize + ", Number of banks: " + numBanks + ".";
                     error = true;
@@ -315,12 +310,8 @@ namespace FF3LE
             {
                 byte b = (byte) (memoryByte >> 16);
 
-                if (b > 0xC0 && b > Bits.ToHiROM(size))
-                {
-                    message = "Your HiROM memory byte offset cannot be higher than your filesize.\n\n Current filesize: $" + strSize;
-                    error = true;
-                }
-                else if (b > 0x00 && b < 0x70 && b > Bits.ToAbs(size))
+                
+                if (b < 0x70 && b > Bits.ToAbs(size))
                 {
                     message = "Your memory byte offset cannot be higher than your filesize.\n\n Current filesize: $" + strSize;
                     error = true;

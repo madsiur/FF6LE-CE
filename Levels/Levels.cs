@@ -1,16 +1,19 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using FF3LE.Properties;
 using FF3LE.Undo;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.RegularExpressions;
 
 namespace FF3LE
 {
@@ -62,6 +65,7 @@ namespace FF3LE
         private int replaceWith;
 
         private string[] levelNames, itemNames, messageNames;
+        private MatchCollection matches;
 
         //madsiur
         bool isLevelNameChanged;
@@ -69,8 +73,8 @@ namespace FF3LE
 
         private string[] dialogueTable = new string[]
             {
-                "/", "*", "TERRA", "LOCKE", "CYAN", "SHADOW", "EDGAR", "SABIN", 
-                "CELES", "STRAGO", "RELM", "SETZER", "MOG", "GAU", "GOGO", "UMARO", 
+                "", "*", "<TERRA>", "<LOCKE>", "<CYAN>", "<SHADOW>", "<EDGAR>", "<SABIN>", 
+                "<CELES>", "<STRAGO>", "<RELM>", "<SETZER>", "<MOG>", "<GAU>", "<GOGO>", "<UMARO>", 
                 "", "", "", "*", "", "", "", "", 
                 "", "", "", "", "", "", "", "", 
                 "A", "B", "C", "D", "E", "F", "G", "H",
@@ -519,7 +523,8 @@ namespace FF3LE
             byte[] compressed = new byte[0x10000];
             byte[] data = model.Data;
 
-            pBar = new ProgressBar(this.model, model.Data, "COMPRESSING AND SAVING LEVEL DATA...", 476); // + whatever else
+            pBar = new ProgressBar(this.model, model.Data, "COMPRESSING AND SAVING LEVEL DATA...", 476);
+            // + whatever else
             pBar.Show();
 
 
@@ -532,11 +537,12 @@ namespace FF3LE
             // LJ: this preps the data pointer to the expanded bank, every section shall be stiched to each other, so this will be incremented in the following lines
             model.m_savedExpandedBytes = 0;
 //            lSmcOffsetExpBank = model.OFFS_FF3ED_DTE_D_EX + model.m_savedExpandedBytes;
-            lSmcOffsetExpBank = ((m_expBank - 0xC0) * 0x10000) + model.m_savedExpandedBytes;
+            lSmcOffsetExpBank = ((m_expBank - 0xC0)*0x10000) + model.m_savedExpandedBytes;
 
             //
             // LJ 2011-12-28: WoB map data and tile set
-            lRemBytesInRegBank = model.LEN_WOB_MAP_DT_TL; // LJ: this is remaining bytes for both mini-maps, for sure at least one of 'em 'll fit
+            lRemBytesInRegBank = model.LEN_WOB_MAP_DT_TL;
+            // LJ: this is remaining bytes for both mini-maps, for sure at least one of 'em 'll fit
             lSmcOffsetRegBank = model.OFFS_WOB_MAP_DT_TL;
 
 //            if (model.EditWobTileMap)
@@ -548,11 +554,12 @@ namespace FF3LE
                 if (size > lRemBytesInRegBank)
                 {
                     // file is expanded, park the data in expanded section
-                    if (model.GetFileSize() == 0x400000)  // LJ: only deal with 32-Mbit expansion for the moment
+                    if (model.GetFileSize() >= 0x400000) // LJ: only deal with 32-Mbit expansion for the moment
                     {
                         if (size <= lRemBytesInExpBank)
                         {
-                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOB] = model.SMCToHiROM((ulong)lSmcOffsetExpBank);
+                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOB] =
+                                model.SMCToHiROM((ulong) lSmcOffsetExpBank);
                             ByteManage.SetByteArray(data, lSmcOffsetExpBank, compressed, 0, size);
                             lSmcOffsetExpBank += size;
                             lRemBytesInExpBank -= size;
@@ -560,10 +567,10 @@ namespace FF3LE
                         else
                         {
                             MessageBox.Show(
-                               "Recompressed WoB tilemap exceeds allotted space in exp. bank.\n" +
-                               "The WoB tilemap was not saved.",
-                               "WARNING: NOT ENOUGH SPACE FOR WOB TILEMAP",
-                               MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                                "Recompressed WoB tilemap exceeds allotted space in exp. bank.\n" +
+                                "The WoB tilemap was not saved.",
+                                "WARNING: NOT ENOUGH SPACE FOR WOB TILEMAP",
+                                MessageBoxButtons.OK, MessageBoxIcon.Stop);
                         }
                     }
                     // file is not expanded, there is nothing that we can do further
@@ -580,7 +587,7 @@ namespace FF3LE
                 else
                 {
                     lRemBytesInRegBank -= size;
-                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOB] = model.SMCToHiROM((ulong)lSmcOffsetRegBank);
+                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOB] = model.SMCToHiROM((ulong) lSmcOffsetRegBank);
                     ByteManage.SetByteArray(data, lSmcOffsetRegBank, compressed, 0, size);
                     lSmcOffsetRegBank += size;
                 }
@@ -592,53 +599,55 @@ namespace FF3LE
                 compressed = new byte[0x2480];
                 size = model.Compress(model.WobGraphicSet, compressed);
 
-                 // data bigger than remaining bytes in regular section
-                 if (size > lRemBytesInRegBank)
-                 {
-                     // file is expanded, park the data in expanded section
-                     if (model.GetFileSize() == 0x400000)  // LJ: only deal with 32-Mbit expansion for the moment
-                     {
-                         if (size <= lRemBytesInExpBank)
-                         {
-                             model.m_varCompDataAbsPtrs[model.IDX_VARP_TILE_WOB] = model.SMCToHiROM((ulong)lSmcOffsetExpBank);
-                             ByteManage.SetByteArray(data, lSmcOffsetExpBank, compressed, 0, size);
-                             lSmcOffsetExpBank += size;
-                             lRemBytesInExpBank -= size;
-                         }
-                         else
-                         {
-                             MessageBox.Show(
+                // data bigger than remaining bytes in regular section
+                if (size > lRemBytesInRegBank)
+                {
+                    // file is expanded, park the data in expanded section
+                    if (model.GetFileSize() >= 0x400000) // LJ: only deal with 32-Mbit expansion for the moment
+                    {
+                        if (size <= lRemBytesInExpBank)
+                        {
+                            model.m_varCompDataAbsPtrs[model.IDX_VARP_TILE_WOB] =
+                                model.SMCToHiROM((ulong) lSmcOffsetExpBank);
+                            ByteManage.SetByteArray(data, lSmcOffsetExpBank, compressed, 0, size);
+                            lSmcOffsetExpBank += size;
+                            lRemBytesInExpBank -= size;
+                        }
+                        else
+                        {
+                            MessageBox.Show(
                                 "Recompressed WoB tileset exceeds allotted space in exp. bank.\n" +
                                 "The WoB tileset was not saved.",
                                 "WARNING: NOT ENOUGH SPACE FOR WOB TILESET",
                                 MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                         }
-                     }
-                     // file is not expanded, there is nothing that we can do further
-                     else
-                     {
-                         MessageBox.Show(
+                        }
+                    }
+                    // file is not expanded, there is nothing that we can do further
+                    else
+                    {
+                        MessageBox.Show(
                             "Recompressed WOB tileset exceeds allotted space.\n" +
                             "The WOB tileset was not saved.",
                             "WARNING: NOT ENOUGH SPACE FOR WOB TILESET",
                             MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                     }
-                 }
-                 // data fits in regular section
-                 else
-                 {
-                     lRemBytesInRegBank -= size;
-                     model.m_varCompDataAbsPtrs[model.IDX_VARP_TILE_WOB] = model.SMCToHiROM((ulong)lSmcOffsetRegBank);
-                     ByteManage.SetByteArray(data, lSmcOffsetRegBank, compressed, 0, size);
-                     lSmcOffsetRegBank += size;
-                 }
+                    }
+                }
+                // data fits in regular section
+                else
+                {
+                    lRemBytesInRegBank -= size;
+                    model.m_varCompDataAbsPtrs[model.IDX_VARP_TILE_WOB] = model.SMCToHiROM((ulong) lSmcOffsetRegBank);
+                    ByteManage.SetByteArray(data, lSmcOffsetRegBank, compressed, 0, size);
+                    lSmcOffsetRegBank += size;
+                }
             }
             pBar.PerformStep("COMPRESSING WOB TILESET");
 
 
             //
             // LJ 2011-12-28: WoR map data and tile set
-            lRemBytesInRegBank = model.LEN_WOR_MAP_DT_TL; // LJ: this is remaining bytes for both mini-maps, for sure at least one of 'em 'll fit
+            lRemBytesInRegBank = model.LEN_WOR_MAP_DT_TL;
+            // LJ: this is remaining bytes for both mini-maps, for sure at least one of 'em 'll fit
             lSmcOffsetRegBank = model.OFFS_WOR_MAP_DT_TL;
 
 //            if (model.EditWorTileMap)
@@ -650,12 +659,14 @@ namespace FF3LE
                 if (size > lRemBytesInRegBank)
                 {
                     // file is expanded, park the data in expanded section
-                    if (model.GetFileSize() == 0x400000)  // LJ: only deal with 32-Mbit expansion for the moment
+                    if (model.GetFileSize() >= 0x400000) // LJ: only deal with 32-Mbit expansion for the moment
                     {
                         if (size <= lRemBytesInExpBank)
                         {
-                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOR] = model.SMCToHiROM((ulong)lSmcOffsetExpBank);
-                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOR2] = model.SMCToHiROM((ulong)lSmcOffsetExpBank);
+                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOR] =
+                                model.SMCToHiROM((ulong) lSmcOffsetExpBank);
+                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOR2] =
+                                model.SMCToHiROM((ulong) lSmcOffsetExpBank);
                             ByteManage.SetByteArray(data, lSmcOffsetExpBank, compressed, 0, size);
                             lSmcOffsetExpBank += size;
                             lRemBytesInExpBank -= size;
@@ -663,10 +674,10 @@ namespace FF3LE
                         else
                         {
                             MessageBox.Show(
-                               "Recompressed WoR tilemap exceeds allotted space in exp. bank.\n" +
-                               "The WoR tilemap was not saved.",
-                               "WARNING: NOT ENOUGH SPACE FOR WOR TILEMAP",
-                               MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                                "Recompressed WoR tilemap exceeds allotted space in exp. bank.\n" +
+                                "The WoR tilemap was not saved.",
+                                "WARNING: NOT ENOUGH SPACE FOR WOR TILEMAP",
+                                MessageBoxButtons.OK, MessageBoxIcon.Stop);
                         }
                     }
                     // file is not expanded, there is nothing that we can do further
@@ -683,8 +694,8 @@ namespace FF3LE
                 else
                 {
                     lRemBytesInRegBank -= size;
-                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOR] = model.SMCToHiROM((ulong)lSmcOffsetRegBank);
-                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOR2] = model.SMCToHiROM((ulong)lSmcOffsetRegBank);
+                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOR] = model.SMCToHiROM((ulong) lSmcOffsetRegBank);
+                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MAP_WOR2] = model.SMCToHiROM((ulong) lSmcOffsetRegBank);
                     ByteManage.SetByteArray(data, lSmcOffsetRegBank, compressed, 0, size);
                     lSmcOffsetRegBank += size;
                 }
@@ -700,11 +711,12 @@ namespace FF3LE
                 if (size > lRemBytesInRegBank)
                 {
                     // file is expanded, park the data in expanded section
-                    if (model.GetFileSize() == 0x400000)  // LJ: only deal with 32-Mbit expansion for the moment
+                    if (model.GetFileSize() >= 0x400000) // LJ: only deal with 32-Mbit expansion for the moment
                     {
                         if (size <= lRemBytesInExpBank)
                         {
-                            model.m_varCompDataAbsPtrs[model.IDX_VARP_TILE_WOR] = model.SMCToHiROM((ulong)lSmcOffsetExpBank);
+                            model.m_varCompDataAbsPtrs[model.IDX_VARP_TILE_WOR] =
+                                model.SMCToHiROM((ulong) lSmcOffsetExpBank);
                             ByteManage.SetByteArray(data, lSmcOffsetExpBank, compressed, 0, size);
                             lSmcOffsetExpBank += size;
                             lRemBytesInExpBank -= size;
@@ -712,27 +724,27 @@ namespace FF3LE
                         else
                         {
                             MessageBox.Show(
-                               "Recompressed WoR tileset exceeds allotted space in exp. bank.\n" +
-                               "The WoR tileset was not saved.",
-                               "WARNING: NOT ENOUGH SPACE FOR WOR TILESET",
-                               MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                                "Recompressed WoR tileset exceeds allotted space in exp. bank.\n" +
+                                "The WoR tileset was not saved.",
+                                "WARNING: NOT ENOUGH SPACE FOR WOR TILESET",
+                                MessageBoxButtons.OK, MessageBoxIcon.Stop);
                         }
                     }
                     // file is not expanded, there is nothing that we can do further
                     else
                     {
                         MessageBox.Show(
-                           "Recompressed WoR tileset exceeds allotted space.\n" +
-                           "The WoR tileset was not saved.",
-                           "WARNING: NOT ENOUGH SPACE FOR WOR TILESET",
-                           MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                            "Recompressed WoR tileset exceeds allotted space.\n" +
+                            "The WoR tileset was not saved.",
+                            "WARNING: NOT ENOUGH SPACE FOR WOR TILESET",
+                            MessageBoxButtons.OK, MessageBoxIcon.Stop);
                     }
                 }
                 // data fits in regular section
                 else
                 {
                     lRemBytesInRegBank -= size;
-                    model.m_varCompDataAbsPtrs[model.IDX_VARP_TILE_WOR] = model.SMCToHiROM((ulong)lSmcOffsetRegBank);
+                    model.m_varCompDataAbsPtrs[model.IDX_VARP_TILE_WOR] = model.SMCToHiROM((ulong) lSmcOffsetRegBank);
                     ByteManage.SetByteArray(data, lSmcOffsetRegBank, compressed, 0, size);
                     lSmcOffsetRegBank += size;
                 }
@@ -742,7 +754,8 @@ namespace FF3LE
 
             //
             // LJ 2011-12-28: Mini-maps data is now handled by FF3LE, though not modified yet
-            lRemBytesInRegBank = model.LEN_WOB_WOR_MMAP; // LJ: this is remaining bytes for both mini-maps, for sure at least one of 'em 'll fit
+            lRemBytesInRegBank = model.LEN_WOB_WOR_MMAP;
+            // LJ: this is remaining bytes for both mini-maps, for sure at least one of 'em 'll fit
             lSmcOffsetRegBank = model.OFFS_WOB_WOR_MMAP;
 
 //            if (model.EditWobTileMap)
@@ -756,11 +769,12 @@ namespace FF3LE
                 if (size > lRemBytesInRegBank)
                 {
                     // file is expanded, park the data in expanded section
-                    if (model.GetFileSize() == 0x400000)  // LJ: only deal with 32-Mbit expansion for the moment
+                    if (model.GetFileSize() >= 0x400000) // LJ: only deal with 32-Mbit expansion for the moment
                     {
                         if (size <= lRemBytesInExpBank)
                         {
-                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MMAP_WOB] = model.SMCToHiROM((ulong)lSmcOffsetExpBank);
+                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MMAP_WOB] =
+                                model.SMCToHiROM((ulong) lSmcOffsetExpBank);
                             ByteManage.SetByteArray(data, lSmcOffsetExpBank, compressed, 0, size);
                             lSmcOffsetExpBank += size;
                             lRemBytesInExpBank -= size;
@@ -788,7 +802,7 @@ namespace FF3LE
                 else
                 {
                     lRemBytesInRegBank -= size;
-                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MMAP_WOB] = model.SMCToHiROM((ulong)lSmcOffsetRegBank);
+                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MMAP_WOB] = model.SMCToHiROM((ulong) lSmcOffsetRegBank);
                     ByteManage.SetByteArray(data, lSmcOffsetRegBank, compressed, 0, size);
                     lSmcOffsetRegBank += size;
                 }
@@ -807,11 +821,12 @@ namespace FF3LE
                 if (size > lRemBytesInRegBank)
                 {
                     // file is expanded, park the data in expanded section
-                    if (model.GetFileSize() == 0x400000)  // LJ: only deal with 32-Mbit expansion for the moment
+                    if (model.GetFileSize() >= 0x400000) // LJ: only deal with 32-Mbit expansion for the moment
                     {
                         if (size <= lRemBytesInExpBank)
                         {
-                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MMAP_WOR] = model.SMCToHiROM((ulong)lSmcOffsetExpBank);
+                            model.m_varCompDataAbsPtrs[model.IDX_VARP_MMAP_WOR] =
+                                model.SMCToHiROM((ulong) lSmcOffsetExpBank);
                             ByteManage.SetByteArray(data, lSmcOffsetExpBank, compressed, 0, size);
                             lSmcOffsetExpBank += size;
                             lRemBytesInExpBank -= size;
@@ -839,7 +854,7 @@ namespace FF3LE
                 else
                 {
                     lRemBytesInRegBank -= size;
-                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MMAP_WOR] = model.SMCToHiROM((ulong)lSmcOffsetRegBank);
+                    model.m_varCompDataAbsPtrs[model.IDX_VARP_MMAP_WOR] = model.SMCToHiROM((ulong) lSmcOffsetRegBank);
                     ByteManage.SetByteArray(data, lSmcOffsetRegBank, compressed, 0, size);
                     lSmcOffsetRegBank += size;
                 }
@@ -849,7 +864,7 @@ namespace FF3LE
 
             // LJ 2011-12-28: we're finished taking expanded bytes for now, update the amount counter:
 //            model.m_savedExpandedBytes = lSmcOffsetExpBank - model.OFFS_FF3ED_DTE_D_EX;
-            model.m_savedExpandedBytes = lSmcOffsetExpBank - ((m_expBank - 0xC0) * 0x10000);
+            model.m_savedExpandedBytes = lSmcOffsetExpBank - ((m_expBank - 0xC0)*0x10000);
 
 
 
@@ -913,14 +928,15 @@ namespace FF3LE
             byte[][] tilesetsTemp = new byte[75][];
             for (int i = 0; i < 75; i++)
             {
-                pointer = (i * 3) + 0x1FBA00;
-                offset = (int)(ByteManage.GetInt(model.Data, pointer) + 0x1E0000);
+                pointer = (i*3) + 0x1FBA00;
+                offset = (int) (ByteManage.GetInt(model.Data, pointer) + 0x1E0000);
 
                 tilesetsTemp[i] = ByteManage.GetByteArray(data, offset, ByteManage.GetShort(data, offset));
             }
             // COMPRESS ONLY THE EDITED TILESETS
             int temp = 0;
-            pointer = 0; offset = 0x1E0000;
+            pointer = 0;
+            offset = 0x1E0000;
             for (int i = 0; i < model.TileSets.Length; i++)
             {
                 if (model.EditTileMaps[i])
@@ -934,7 +950,7 @@ namespace FF3LE
                     size = compressed.Length;
                 }
 
-                temp = (ushort)((offset - 0x1E0000) & 0xFFFF) + (byte)((offset - 0x1E0000) >> 16);
+                temp = (ushort) ((offset - 0x1E0000) & 0xFFFF) + (byte) ((offset - 0x1E0000) >> 16);
                 if (offset + size > 0x1FB3FF) // not enough space
                 {
                     MessageBox.Show(
@@ -946,8 +962,8 @@ namespace FF3LE
                 }
                 else
                 {
-                    ByteManage.SetShort(data, 0x1FBA00 + (i * 3), (ushort)((offset - 0x1E0000) & 0xFFFF));
-                    data[0x1FBA00 + (i * 3) + 2] = (byte)((offset - 0x1E0000) >> 16);
+                    ByteManage.SetShort(data, 0x1FBA00 + (i*3), (ushort) ((offset - 0x1E0000) & 0xFFFF));
+                    data[0x1FBA00 + (i*3) + 2] = (byte) ((offset - 0x1E0000) >> 16);
                     ByteManage.SetByteArray(data, offset, compressed);
                 }
 
@@ -960,15 +976,16 @@ namespace FF3LE
             byte[][] tilemapsTemp = new byte[Model.NUM_TILEMAPS][];
             for (int i = 0; i < Model.NUM_TILEMAPS; i++)
             {
-                pointer = (i * 3) + Model.BASE_TILEMAP_PTR;
-                offset = (int)(ByteManage.GetInt(model.Data, pointer) + Model.BASE_TILEMAP);
+                pointer = (i*3) + Model.BASE_TILEMAP_PTR;
+                offset = (int) (ByteManage.GetInt(model.Data, pointer) + Model.BASE_TILEMAP);
 
                 tilemapsTemp[i] = ByteManage.GetByteArray(data, offset, ByteManage.GetShort(data, offset));
             }
             //madsiur
             // COMPRESS ONLY THE EDITED TILEMAPS
             temp = 0;
-            pointer = 0; offset = Model.BASE_TILEMAP;
+            pointer = 0;
+            offset = Model.BASE_TILEMAP;
             for (int i = 0; i < model.TileMaps.Length; i++)
             {
                 if (model.EditTileMaps[i])
@@ -983,13 +1000,14 @@ namespace FF3LE
                 }
 
                 //madsiur
-                temp = (ushort)((offset - Model.BASE_TILEMAP) & 0xFFFF) + (byte)((offset - Model.BASE_TILEMAP) >> 16);
+                temp = (ushort) ((offset - Model.BASE_TILEMAP) & 0xFFFF) + (byte) ((offset - Model.BASE_TILEMAP) >> 16);
                 if (offset + size >= Model.BASE_TILEMAP + Model.SIZE_TILEMAP_DATA) // not enough space
                 {
                     if (i == Model.NUM_TILEMAPS - 1)
                     {
-                        ByteManage.SetShort(data, Model.BASE_TILEMAP_PTR + (i * 3), (ushort)((offset - Model.BASE_TILEMAP) & 0xFFFF));
-                        data[Model.BASE_TILEMAP_PTR + (i * 3) + 2] = (byte)((offset - Model.BASE_TILEMAP) >> 16);
+                        ByteManage.SetShort(data, Model.BASE_TILEMAP_PTR + (i*3),
+                            (ushort) ((offset - Model.BASE_TILEMAP) & 0xFFFF));
+                        data[Model.BASE_TILEMAP_PTR + (i*3) + 2] = (byte) ((offset - Model.BASE_TILEMAP) >> 16);
                     }
                     else
                     {
@@ -1003,8 +1021,9 @@ namespace FF3LE
                 }
                 else
                 {
-                    ByteManage.SetShort(data, Model.BASE_TILEMAP_PTR + (i * 3), (ushort)((offset - Model.BASE_TILEMAP) & 0xFFFF));
-                    data[Model.BASE_TILEMAP_PTR + (i * 3) + 2] = (byte)((offset - Model.BASE_TILEMAP) >> 16);
+                    ByteManage.SetShort(data, Model.BASE_TILEMAP_PTR + (i*3),
+                        (ushort) ((offset - Model.BASE_TILEMAP) & 0xFFFF));
+                    data[Model.BASE_TILEMAP_PTR + (i*3) + 2] = (byte) ((offset - Model.BASE_TILEMAP) >> 16);
                     ByteManage.SetByteArray(data, offset, compressed);
                 }
 
@@ -1017,14 +1036,15 @@ namespace FF3LE
             byte[][] physmapsTemp = new byte[43][];
             for (int i = 0; i < 43; i++)
             {
-                pointer = (i * 2) + 0x19CD10;
-                offset = (int)(ByteManage.GetShort(model.Data, pointer) + 0x19A800);
+                pointer = (i*2) + 0x19CD10;
+                offset = (int) (ByteManage.GetShort(model.Data, pointer) + 0x19A800);
 
                 physmapsTemp[i] = ByteManage.GetByteArray(data, offset, ByteManage.GetShort(data, offset));
             }
             // COMPRESS ONLY THE EDITED PHYSICAL MAPS
             temp = 0;
-            pointer = 0; offset = 0x19A800;
+            pointer = 0;
+            offset = 0x19A800;
             for (int i = 0; i < model.PhysicalMaps.Length; i++)
             {
                 if (model.EditPhysicalMaps[i])
@@ -1038,12 +1058,12 @@ namespace FF3LE
                     size = compressed.Length;
                 }
 
-                temp = (ushort)((offset - 0x19A800) & 0xFFFF) + (byte)((offset - 0x19A800) >> 16);
+                temp = (ushort) ((offset - 0x19A800) & 0xFFFF) + (byte) ((offset - 0x19A800) >> 16);
                 if (offset + size > 0x19CD0F) // not enough space
                 {
                     if (i == 42)
                     {
-                        ByteManage.SetShort(data, 0x19CD10 + (i * 3), (ushort)((offset - 0x19A800) & 0xFFFF));
+                        ByteManage.SetShort(data, 0x19CD10 + (i*3), (ushort) ((offset - 0x19A800) & 0xFFFF));
                     }
                     else
                     {
@@ -1057,7 +1077,7 @@ namespace FF3LE
                 }
                 else
                 {
-                    ByteManage.SetShort(data, 0x19CD10 + (i * 2), (ushort)((offset - 0x19A800) & 0xFFFF));
+                    ByteManage.SetShort(data, 0x19CD10 + (i*2), (ushort) ((offset - 0x19A800) & 0xFFFF));
                     ByteManage.SetByteArray(data, offset, compressed);
                 }
 
@@ -1066,80 +1086,123 @@ namespace FF3LE
                 pBar.PerformStep("COMPRESSING SOLIDITY SET 0x" + i.ToString("X3"));
             }
 
-            model.SaveVarCompDataAbsPtrs();   // LJ 2011-12-28: interoperability fix for FF3usME
+            model.SaveVarCompDataAbsPtrs(); // LJ 2011-12-28: interoperability fix for FF3usME
 
             //madsiur, saving message names
             offset = 0;
             for (int i = 0; i < Model.NUM_LOC_NAMES; i++)
             {
                 string mes = messageNames[i];
-                char[] ch = messageNames[i].ToCharArray();
-                byte[] tc = new byte[ch.Length + 1];
-                bool skip = false;
-                bool error = false;
+                List<char> charList = mes.ToList();
+                byte[] result = new byte[charList.Count + 1];
+                byte[] final;
 
-                if (!(mes.Equals("") || mes.Equals(" ") || messageNames.Length == 0))
+                if (!(mes.Equals("") || mes.Equals(" ") || mes.Length == 0))
                 {
-                    for (int j = 0; j < ch.Length; j++)
+                    int j = 0;
+                    for (j = 0; j < charList.Count; j++)
                     {
-                        if (!error)
+                        string pattern = "";
+                        int position = 0;
+
+                        if (charList[j].Equals('<'))
                         {
-                            for (int k = 0; k < dialogueTable.Length; k++)
+                            int k = j - 1;
+
+                            do
                             {
-                                if (ch[j].ToString().Equals(dialogueTable[k]))
+                                k++;
+                                pattern += charList[k];
+                            } while (!charList[k].Equals('>'));
+                            
+                        }
+                        else
+                        {
+                            string twoPattern = "";
+
+                            if (j != charList.Count - 1)
+                            {
+                                twoPattern = charList[j] + charList[j + 1].ToString();
+                            }
+
+                            for (int l = 0; l < dialogueTable.Length; l++)
+                            {
+                                if (twoPattern.Equals(dialogueTable[l]))
                                 {
-                                    tc[j] = (byte) k;
-                                    k = dialogueTable.Length;
-
-                                    if (k == dialogueTable.Length - 1)
-                                    {
-                                        MessageBox.Show("Unable to save message name " + i.ToString("X3") + " \"" +
-                                                        messageNames[i] +
-                                                        "\"). Default entry \"INN\" will be saved instead.");
-
-                                        error = true;
-                                    }
+                                    position = l;
+                                    pattern = twoPattern;
+                                    break;
                                 }
                             }
                         }
 
-                        tc[tc.Length - 1] = 0;
+                        if (pattern.Equals("") || pattern.Length > 2)
+                        {
+                            if (pattern.Equals(""))
+                            {
+                                pattern = charList[j].ToString();
+                            }
+
+                            for (int m = 0; m < dialogueTable.Length; m++)
+                            {
+                                if (pattern.Equals(dialogueTable[m]))
+                                {
+                                    position = m;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (position != 0)
+                        {
+                            result[j] = (byte) position;
+                        }
+                        else
+                        {
+                            result[j] = 0xFF;
+                        }
+
+                        if (pattern.Length > 1)
+                        {
+                            for (int n = 0; n < pattern.Length - 1; n++)
+                            {
+                                charList.RemoveAt(j + 1);
+                            }
+                        }
                     }
 
-                    if (error)
-                    {
-                        tc = Expansion.DEFAULT_LOC_NAME;
-                    }
+                    final = new byte[charList.Count + 1];
+                    Buffer.BlockCopy(result, 0, final, 0, final.Length);
+                    final[final.Length - 1] = 0x00;
                 }
                 else
                 {
-                    tc = new byte[] {0x00};
+                    final = new byte[] { 0 };
                 }
 
-                if (offset + tc.Length < Model.SIZE_LOC_NAMES)
+                if (offset + final.Length < Model.SIZE_LOC_NAMES)
                 {
-                    ByteManage.SetShort(model.Data, i*2 + Model.BASE_LOC_NAMES_PTR, (ushort) offset);
-                    ByteManage.SetByteArray(model.Data, offset + Model.BASE_LOC_NAMES, tc);
-                    offset += tc.Length;
+                    ByteManage.SetShort(model.Data, i * 2 + Model.BASE_LOC_NAMES_PTR, (ushort)offset);
+                    ByteManage.SetByteArray(model.Data, offset + Model.BASE_LOC_NAMES, final);
+                    offset += result.Length;
                     pBar.PerformStep("SAVING LOCATION NAME 0x" + i.ToString("X2"));
                 }
                 else
                 {
                     MessageBox.Show(
-                            "Location Names exceed allotted space ($" + Model.SIZE_LOC_NAMES.ToString("X4") + " bytes).\n" +
-                            "The editor stopped saving at Location Name $" + i.ToString("X2"),
-                            "WARNING: NOT ENOUGH SPACE FOR LOCATION NAMES",
-                            MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                        "Location Names exceed allotted space ($" + Model.SIZE_LOC_NAMES.ToString("X4") + " bytes).\n" +
+                        "The editor stopped saving at Location Name $" + i.ToString("X2"),
+                        "WARNING: NOT ENOUGH SPACE FOR LOCATION NAMES",
+                        MessageBoxButtons.OK, MessageBoxIcon.Stop);
                     break;
                 }
-
             }
 
             pBar.Close();
         }
 
         private string[] GetLevelNames()
-        {
+        { 
             if (Model.IsExpanded)
             {
                 return Model.Deserialized();
@@ -1187,40 +1250,6 @@ namespace FF3LE
                 }
             }
             return names;
-        }
-
-        //madsiur
-        private bool IsMessageValid(string message)
-        {
-            if (message.Length == 0 || message.Equals(""))
-            {
-                return false;
-            }
-
-            char[] ch;
-            ch = message.ToCharArray();
-            bool isValid = true;
-
-            if (!message.Equals(" "))
-            {
-                for (int j = 0; j < ch.Length; j++)
-                {
-                    for (int k = 0; k < dialogueTable.Length; k++)
-                    {
-                        if (ch[j].ToString().Equals(dialogueTable[k]))
-                        {
-                            k = dialogueTable.Length;
-                        }
-
-                        if (k == dialogueTable.Length - 1)
-                        {
-                            isValid = false;
-                        }
-                    }
-                }
-            }
-
-            return isValid;
         }
 
 
@@ -2862,11 +2891,14 @@ namespace FF3LE
 
         private void ValidateMessageName()
         {
-            if (tbMessageName.Text.Length <= 37)
+            string mess = tbMessageName.Text;
+            MatchCollection matches = Bits.GetMatchCollection(mess);
+
+            if (matches.Count <= 37)
             {
-                if (!IsMessageValid(tbMessageName.Text))
+                if (!Bits.IsValidMapName(mess))
                 {
-                    MessageBox.Show("Invalid Message name: \"" + tbMessageName.Text + "\"", "FF6LE",
+                    MessageBox.Show("Invalid Message name: \"" + tbMessageName.Text + "\". For allowed characters, see readme.", "FF6LE",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
                     tbMessageName.Text = messageNames[messageName.SelectedIndex];
@@ -2874,7 +2906,7 @@ namespace FF3LE
                 }
                 else
                 {
-                    messageNames[messageName.SelectedIndex] = tbMessageName.Text;
+                    messageNames[messageName.SelectedIndex] = mess;
                     this.messageName.Items.Clear();
                     this.messageName.Items.AddRange(messageNames);
                     this.messageName.SelectedIndex = (int)this.message.Value;
@@ -2882,7 +2914,7 @@ namespace FF3LE
             }
             else
             {
-                MessageBox.Show("Invalid Message name length. Character length must be inferior or equal to 37.",
+                MessageBox.Show("Invalid Message Name length. Message Name byte count must be inferior or equal to 37.",
                     "FF6LE",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 tbMessageName.Text = messageNames[messageName.SelectedIndex];
