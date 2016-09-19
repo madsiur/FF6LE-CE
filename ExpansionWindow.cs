@@ -28,6 +28,7 @@ namespace FF3LE
         private bool isExpanded;
         private bool isZplus;
         private string filepath;
+        private byte a;
 
         public ExpansionWindow(ProgramController pc)
         {
@@ -159,8 +160,9 @@ namespace FF3LE
                         }
                         else
                         {
-                            byte a = (byte)(memByte >> 4);
-                            a = (byte)((a << 4) & ((int)nudBanks.Value - 4));
+                            a = (byte)(memByte >> 4);
+                            a = (byte)(a << 4);
+                            a += (byte)((int)nudBanks.Value - 4);
                             pc.setMemByte(memLoc, a);
                         }
                     }

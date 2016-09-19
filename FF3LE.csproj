@@ -222,11 +222,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings.cs" />
-    <Compile Include="Specialized.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Specialized.settings</DependentUpon>
-    </Compile>
     <Compile Include="State.cs" />
     <Compile Include="Undo\CheckedListBoxCommand.cs" />
     <Compile Include="Undo\ComboBoxCommand.cs" />
@@ -244,10 +239,6 @@
     <Compile Include="Undo\NumericUpDownCommand.cs" />
     <Compile Include="Undo\TileMapEditCommand.cs" />
     <Compile Include="Undo\TrackBarCommand.cs" />
-    <None Include="Specialized.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Specialized.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\buttonEventField.gif" />

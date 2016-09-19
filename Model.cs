@@ -340,6 +340,9 @@ namespace FF3LE
         {
             try
             {
+                //madsiur, set correctly reverse checksum and checksum
+                SetRomChecksum();
+
                 // if the loaded rom contained a header, use a buffer that starts the data at 0x200
                 // and store the header data to the rom
                 if (hasHeader && header != null)
@@ -367,6 +370,26 @@ namespace FF3LE
                 return false;
             }
 
+        }
+
+        /// <summary>
+        /// madsiur, set correctly checksum and reverse checksum
+        /// </summary>
+        public void SetRomChecksum()
+        {
+            int chunk0 = 0;
+            int chunk1 = 0;
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (i < 0x200000)
+                    chunk0 += data[i];
+                else
+                    chunk1 += data[i];
+            }
+            checkSum = (chunk0 + chunk1 + chunk1) & 0xFFFF;
+            //
+            Bits.SetShort(data, 0xFFDE, (int)(checkSum & 0xFFFF));
+            Bits.SetShort(data, 0xFFDC, (int)(checkSum ^ 0xFFFF));
         }
         /************************************************************************************
         * Level Editor Methods
@@ -974,6 +997,7 @@ namespace FF3LE
                 if ((memByte & 0x80) == 0x80)
                 {
                     InitExpansionFields(true);
+                    IsExpanded = true;
                     return true;
                 }
             }

@@ -1522,7 +1522,7 @@ namespace FF3LE
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.aboutToolStripMenuItem.Text = "About...";
             // 
             // panel1
