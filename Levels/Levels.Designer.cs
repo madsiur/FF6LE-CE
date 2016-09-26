@@ -5709,7 +5709,7 @@ namespace FF3LE
             this.treasureCheckMem.TabIndex = 1;
             this.treasureCheckMem.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.treasureCheckMem.Value = new decimal(new int[] {
-            7792,
+            7744,
             0,
             0,
             0});

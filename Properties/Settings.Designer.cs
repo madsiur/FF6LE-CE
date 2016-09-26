@@ -37,111 +37,6 @@ namespace FF3LE.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool PreviewFirstTime {
-            get {
-                return ((bool)(this["PreviewFirstTime"]));
-            }
-            set {
-                this["PreviewFirstTime"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool PreviewAssembleLevels {
-            get {
-                return ((bool)(this["PreviewAssembleLevels"]));
-            }
-            set {
-                this["PreviewAssembleLevels"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-m -zs 0 -v 2")]
-        public string PreviewArguments {
-            get {
-                return ((string)(this["PreviewArguments"]));
-            }
-            set {
-                this["PreviewArguments"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PreviewDynamicRomName {
-            get {
-                return ((bool)(this["PreviewDynamicRomName"]));
-            }
-            set {
-                this["PreviewDynamicRomName"] = value;
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-m -zs 0 -v 2")]
-        public string PreviewArgsDefault {
-            get {
-                return ((string)(this["PreviewArgsDefault"]));
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool PreviewEnterEvent {
-            get {
-                return ((bool)(this["PreviewEnterEvent"]));
-            }
-            set {
-                this["PreviewEnterEvent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string ZSNESPath {
-            get {
-                return ((string)(this["ZSNESPath"]));
-            }
-            set {
-                this["ZSNESPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2999423")]
-        public int MemoryByte {
-            get {
-                return ((int)(this["MemoryByte"]));
-            }
-            set {
-                this["MemoryByte"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LevelNamesPath {
-            get {
-                return ((string)(this["LevelNamesPath"]));
-            }
-            set {
-                this["LevelNamesPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
             "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
             "tring>World of Balance, World Map</string>\r\n  <string>World of Ruin, World Map</" +
@@ -382,6 +277,111 @@ namespace FF3LE.Properties {
             }
             set {
                 this["LevelNames"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PreviewFirstTime {
+            get {
+                return ((bool)(this["PreviewFirstTime"]));
+            }
+            set {
+                this["PreviewFirstTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PreviewAssembleLevels {
+            get {
+                return ((bool)(this["PreviewAssembleLevels"]));
+            }
+            set {
+                this["PreviewAssembleLevels"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-m -zs 0 -v 2")]
+        public string PreviewArguments {
+            get {
+                return ((string)(this["PreviewArguments"]));
+            }
+            set {
+                this["PreviewArguments"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PreviewDynamicRomName {
+            get {
+                return ((bool)(this["PreviewDynamicRomName"]));
+            }
+            set {
+                this["PreviewDynamicRomName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-m -zs 0 -v 2")]
+        public string PreviewArgsDefault {
+            get {
+                return ((string)(this["PreviewArgsDefault"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PreviewEnterEvent {
+            get {
+                return ((bool)(this["PreviewEnterEvent"]));
+            }
+            set {
+                this["PreviewEnterEvent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ZSNESPath {
+            get {
+                return ((string)(this["ZSNESPath"]));
+            }
+            set {
+                this["ZSNESPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2999423")]
+        public int MemoryByte {
+            get {
+                return ((int)(this["MemoryByte"]));
+            }
+            set {
+                this["MemoryByte"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LevelNamesPath {
+            get {
+                return ((string)(this["LevelNamesPath"]));
+            }
+            set {
+                this["LevelNamesPath"] = value;
             }
         }
         

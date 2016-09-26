@@ -5,33 +5,6 @@
     <Setting Name="LastRomPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">"C:\\"</Value>
     </Setting>
-    <Setting Name="PreviewFirstTime" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="PreviewAssembleLevels" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="PreviewArguments" Type="System.String" Scope="User">
-      <Value Profile="(Default)">-m -zs 0 -v 2</Value>
-    </Setting>
-    <Setting Name="PreviewDynamicRomName" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="PreviewArgsDefault" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">-m -zs 0 -v 2</Value>
-    </Setting>
-    <Setting Name="PreviewEnterEvent" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="ZSNESPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="MemoryByte" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2999423</Value>
-    </Setting>
-    <Setting Name="LevelNamesPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="LevelNames" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
@@ -451,6 +424,33 @@
   &lt;string&gt;Colosseum&lt;/string&gt;
   &lt;string&gt;___&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="PreviewFirstTime" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="PreviewAssembleLevels" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="PreviewArguments" Type="System.String" Scope="User">
+      <Value Profile="(Default)">-m -zs 0 -v 2</Value>
+    </Setting>
+    <Setting Name="PreviewDynamicRomName" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PreviewArgsDefault" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">-m -zs 0 -v 2</Value>
+    </Setting>
+    <Setting Name="PreviewEnterEvent" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ZSNESPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="MemoryByte" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2999423</Value>
+    </Setting>
+    <Setting Name="LevelNamesPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="ExpandedLevelNames" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;

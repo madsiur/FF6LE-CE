@@ -28,7 +28,6 @@ namespace FF3LE
         private bool isExpanded;
         private bool isZplus;
         private string filepath;
-        private byte a;
 
         public ExpansionWindow(ProgramController pc)
         {
@@ -73,11 +72,6 @@ namespace FF3LE
 
                     dataBank = Bits.ToHiROM(ByteManage.GetInt(pc.Data(), 0x0052C3)) >> 16;
                     tilemapBank = Bits.ToHiROM(pc.Data()[0x0028A4]);
-
-                    if ((memByte & 0x20) != 0x20)
-                    {
-                        btnExpandChests.Enabled = true;
-                    }
 
                     tbExpansionData.Enabled = false;
                     tbExpansionTilemaps.Enabled = false;
@@ -165,9 +159,8 @@ namespace FF3LE
                         }
                         else
                         {
-                            a = (byte)(memByte >> 4);
-                            a = (byte)(a << 4);
-                            a += (byte)((int)nudBanks.Value - 4);
+                            byte a = (byte)(memByte >> 4);
+                            a = (byte)((a << 4) & ((int)nudBanks.Value - 4));
                             pc.setMemByte(memLoc, a);
                         }
                     }
@@ -397,7 +390,6 @@ namespace FF3LE
                                 tbExpansionMemory.Enabled = false;
                                 ckZdPlus.Enabled = false;
                                 btnExpand.Enabled = false;
-                                btnExpandChests.Enabled = true;
                             }
                             else
                             {
@@ -426,7 +418,7 @@ namespace FF3LE
                             dialog =
                                 MessageBox.Show(
                                     message + "\nThere WILL be problems with the ROM after expansion. Continue anyway?",
-                                    "FF6LE", MessageBoxButtons.YesNo,
+                                    "ZONE DOCTOR", MessageBoxButtons.YesNo,
                                     MessageBoxIcon.Exclamation);
 
                             if (dialog == DialogResult.Yes)
@@ -437,13 +429,7 @@ namespace FF3LE
                                 {
                                     MessageBox.Show("Expansion completed!", "FF6LE", MessageBoxButtons.OK,
                                         MessageBoxIcon.Information);
-
-                                    tbExpansionData.Enabled = false;
-                                    tbExpansionTilemaps.Enabled = false;
-                                    tbExpansionMemory.Enabled = false;
-                                    ckZdPlus.Enabled = false;
-                                    btnExpand.Enabled = false;
-                                    btnExpandChests.Enabled = true;
+                                    
                                 }
                                 else
                                 {
@@ -462,61 +448,6 @@ namespace FF3LE
             else
             {
                 MessageBox.Show("Error! " + message, "ZONE DOCTOR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnExpandChests_Click(object sender, EventArgs e)
-        {
-            List<int[]> faults = pc.ValidateChestExpansion();
-            string message = "";
-
-            DialogResult dialog =
-                    MessageBox.Show("This will add $20 bytes available for chest memory. The range will now be $1E20 to $1E7F for a total of 768 bits. Proceed?", "FF6LE",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question);
-
-            if (dialog == DialogResult.Yes)
-            {
-                if (faults.Count == 0)
-                {
-                    if (pc.ExpandChests())
-                    {
-                        byte mem = pc.Data()[memLoc];
-                        mem += 0x20;
-                        pc.setMemByte(memLoc, mem);
-                        MessageBox.Show("Chest memory expansion completed!", "FF6LE", MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
-                    }
-                }
-                else
-                {
-                    message = "You have the following error(s) in your ROM:\n";
-
-                    for (int i = 0; i < faults.Count && i < 8; i++)
-                    {
-                        message += "\n" + (i + 1) + "- Offset $" + faults[i][0].ToString("X6") + ", value of $" +
-                                   faults[i][2].ToString("X4") + " found. Expected: $" +
-                                   faults[i][1].ToString("X4");
-                    }
-
-                    dialog = MessageBox.Show(message +
-                            "\nThere might be problems with the ROM after chest expansion. Continue anyway?",
-                            "FF6LE", MessageBoxButtons.YesNo,
-                            MessageBoxIcon.Exclamation);
-
-                    if (dialog == DialogResult.Yes)
-                    {
-                        if (pc.ExpandChests())
-                        {
-                            byte mem = pc.Data()[memLoc];
-                            mem += 0x20;
-                            pc.setMemByte(memLoc, mem);
-
-                            MessageBox.Show("Chest memory expansion completed!", "FF6LE", MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
-                        }
-                    }
-                }
             }
         }
     }

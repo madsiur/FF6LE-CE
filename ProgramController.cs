@@ -140,20 +140,10 @@ namespace FF3LE
             return model.ValidateROM(isZplus);
         }
 
-        public List<int[]> ValidateChestExpansion()
-        {
-            return model.ValidateChestExpansion();
-        }
-
         //madsiur
         public bool ExpandRom(int dataOffset, int tilemapOffset, int memoryOffset, int tilemapSize, bool isZplus)
         {
             return model.ExpandROM(dataOffset, tilemapOffset, memoryOffset, tilemapSize, isZplus);
-        }
-
-        public bool ExpandChests()
-        {
-            return model.ExpandChests();
         }
 
         //madsiur

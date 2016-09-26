@@ -39,8 +39,6 @@ namespace FF3LE
 
         public static readonly int[] ROM_CHEST_VAR = { 0x344, 0x342, 2, 0, 0x340, 0x341, 2, 0, 0x340, 0x341, 0x342, 0x342 };
 
-        public static readonly int[] ROM_CHEST_VAR_EXP = { 0x404, 0x402, 2, 0, 0x400, 0x401, 2, 0, 0x400, 0x401, 0x402, 0x402 };
-
         public static readonly int[] ROM_LONG_EXIT =
         {
             0xC018EA, 0xC018F0, 0xC01903, 0xC0190B, 0xC01916, 0xC0191E,
@@ -74,10 +72,6 @@ namespace FF3LE
         public static readonly byte[] ROM_LOC_NAME_BYTE_VAL = { 0xCE };
         public static readonly int[] ROM_LOC_NAME_SHORT = { 0xC0800D };
         public static readonly ushort[] ROM_LOC_NAME_SHORT_VAL = { 0xF100 };
-        
-        // Chest memory expansion
-        public static readonly int[] ROM_EXP_CHEST_SHORT_MEM = { 0xC0BB1B, 0xC04C25, 0xC04C2E, 0xC04C35, 0xC01615 };
-        public static readonly int[] ROM_EXP_CHEST_SHORT_NUM = { 0xC04C1B, 0xC01603 };
 
         // Number of new locations and Tilemaps
         public static readonly int NEW_ENTRIES = 96;

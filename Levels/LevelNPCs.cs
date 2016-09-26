@@ -463,16 +463,7 @@ namespace FF3LE
             {
                 coordX = data[offset]; offset++;
                 coordY = data[offset]; offset++;
-
-                if (Model.IsChestsExpanded)
-                {
-                    checkMem = (ushort)(((ByteManage.GetShort(data, offset) & 0x3FF) >> 3) + 0x1E20);
-                }
-                else
-                {
-                    checkMem = (ushort) (((ByteManage.GetShort(data, offset) & 0x1FF) >> 3) + 0x1E40);
-                }
-
+                checkMem = (ushort)(((ByteManage.GetShort(data, offset) & 0x1FF) >> 3) + 0x1E40);
                 checkBit = (byte)(data[offset] & 0x07); offset++;
                 switch (data[offset] >> 4)
                 {
@@ -499,15 +490,7 @@ namespace FF3LE
                 data[offset] = coordX; offset++;
                 data[offset] = coordY; offset++;
 
-                if (Model.IsChestsExpanded)
-                {
-                    ByteManage.SetShortBits(data, offset, (ushort)((checkMem - 0x1E20) << 3), 0x03F8);
-                }
-                else
-                {
-                    ByteManage.SetShortBits(data, offset, (ushort) ((checkMem - 0x1E40) << 3), 0x01F8);
-                }
-
+                ByteManage.SetShortBits(data, offset, (ushort)((checkMem - 0x1E40) << 3), 0x01F8);
                 ByteManage.SetByteBits(data, offset, checkBit, 0x07); offset++;
 
                 data[offset] &= 0x0F;

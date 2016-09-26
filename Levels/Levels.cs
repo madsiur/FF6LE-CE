@@ -142,12 +142,6 @@ namespace FF3LE
 
             InitializeComponent();
 
-            //madsiur
-            if (Model.IsChestsExpanded)
-            {
-                treasureCheckMem.Minimum = 7712;
-            }
-
             levelNames = GetLevelNames();
             this.levelName.Items.AddRange(levelNames);
             this.exitShortDestination.Items.AddRange(levelNames);

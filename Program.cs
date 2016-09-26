@@ -135,8 +135,7 @@ namespace FF3LE
                 levels.Assemble();
             // Rest of assemblers here
 
-            //madsiur, checksum is now correctly calculated in WriteRom()
-            //model.CalculateAndSetNewRomChecksum(); // TODO: DOES NOT WORK!
+            model.CalculateAndSetNewRomChecksum(); // TODO: DOES NOT WORK!
         }
         public void CreateLevelsWindow(int iExpBank)
         {
