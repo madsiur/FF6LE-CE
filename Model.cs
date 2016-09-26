@@ -1035,6 +1035,7 @@ namespace FF3LE
                     }
 
                     InitExpansionFields(true);
+                    IsExpanded = true;
                     return true;
                 }
             }
