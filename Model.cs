@@ -14,16 +14,11 @@ namespace FF3LE
 
     public class Model
     {
-        /*private static int dataOffset = 0;
-        private static int tilemapOffset = 0;
-        private static int TilemapsSize = 0;
-
-        public static bool IsZdPlus;*/
-
         #region CE expansion variables
 
-        // CE Expansion 
+        // CE Expansions
         public static bool IsExpanded;
+        public static bool IsChestsExpanded;
 
         // Number of entries
         public static int NUM_LOCATIONS;
@@ -340,6 +335,9 @@ namespace FF3LE
         {
             try
             {
+                //madsiur, set correctly reverse checksum and checksum
+                SetRomChecksum();
+
                 // if the loaded rom contained a header, use a buffer that starts the data at 0x200
                 // and store the header data to the rom
                 if (hasHeader && header != null)
@@ -367,6 +365,26 @@ namespace FF3LE
                 return false;
             }
 
+        }
+
+        /// <summary>
+        /// madsiur, set correctly checksum and reverse checksum
+        /// </summary>
+        public void SetRomChecksum()
+        {
+            int chunk0 = 0;
+            int chunk1 = 0;
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (i < 0x200000)
+                    chunk0 += data[i];
+                else
+                    chunk1 += data[i];
+            }
+            checkSum = (chunk0 + chunk1 + chunk1) & 0xFFFF;
+            //
+            Bits.SetShort(data, 0xFFDE, (int)(checkSum & 0xFFFF));
+            Bits.SetShort(data, 0xFFDC, (int)(checkSum ^ 0xFFFF));
         }
         /************************************************************************************
         * Level Editor Methods
@@ -813,7 +831,7 @@ namespace FF3LE
                 Log.SetEntry("Write Long Exit ASM");
                 Bits.setAsmArray(data, Expansion.ROM_LONG_EXIT, Expansion.ROM_LONG_EXIT_VAR, dataOffset + Expansion.NEW_LONG_EXIT);
                 Log.SetEntry("Write Chest ASM");
-                Bits.setAsmArray(data, Expansion.ROM_CHEST, Expansion.ROM_CHEST_VAR, dataOffset + Expansion.NEW_CHEST);
+                Bits.setAsmArray(data, Expansion.ROM_CHEST, Expansion.ROM_CHEST_VAR_EXP, dataOffset + Expansion.NEW_CHEST);
 
                 Log.SetEntry("Write Locations ASM");
                 // LDA change for Locations
@@ -867,6 +885,45 @@ namespace FF3LE
             }
         }
 
+        public bool ExpandChests()
+        {
+            try
+            {
+                Bits.setAsmArray(data, Expansion.ROM_EXP_CHEST_SHORT_MEM, 0x1E20);
+                Bits.setAsmArray(data, Expansion.ROM_EXP_CHEST_SHORT_NUM, 0x03FF);
+                ByteManage.SetShort(data, 0x00BB1F, 0x0060);
+                IsChestsExpanded = true;
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Unable to perform chest expansion.\n\n Error: " + e.Message, "FF6LE",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                return false;
+            }
+            
+        }
+
+        public List<int[]> ValidateChestExpansion()
+        {
+            List<int[]> faults = new List<int[]>();
+
+            for (int i = 0; i < Expansion.ROM_EXP_CHEST_SHORT_MEM.Length; i++)
+            {
+                Bits.IsMatchingShort(data, 0x1E40, Expansion.ROM_EXP_CHEST_SHORT_MEM[i], ref faults);
+            }
+
+            for (int i = 0; i < Expansion.ROM_EXP_CHEST_SHORT_NUM.Length; i++)
+            {
+                Bits.IsMatchingShort(data, 0x01FF, Expansion.ROM_EXP_CHEST_SHORT_NUM[i], ref faults);
+            }
+
+            Bits.IsMatchingShort(data, 0x0030, 0x00BB1F, ref faults);
+
+            return faults;
+        }
         public List<int[]> ValidateROM(bool isZplus)
         {
             List<int[]> faults = new List<int[]>();
@@ -957,6 +1014,7 @@ namespace FF3LE
         public bool CheckExpansion()
         {
             byte memByte;
+            IsChestsExpanded = false;
 
             if (Settings.Default.MemoryByte < data.Length)
             {
@@ -966,13 +1024,16 @@ namespace FF3LE
             {
                 memByte = data[0x2DC47F];
             }
-            
-            IsExpanded = false;
 
             if ((memByte & 0xFF) != 0xFF)
             {
                 if ((memByte & 0x80) == 0x80)
                 {
+                    if((memByte & 0x20) == 0x20)
+                    {
+                        IsChestsExpanded = true;
+                    }
+
                     InitExpansionFields(true);
                     IsExpanded = true;
                     return true;

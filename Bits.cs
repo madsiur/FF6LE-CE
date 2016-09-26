@@ -62,6 +62,20 @@ namespace FF3LE
             data[offset] = (byte)((value >> 16) & 0xFF);
         }
 
+        public static void SetShort(byte[] data, int offset, int set)
+        {
+            try
+            {
+                data[offset] = (byte)(set & 0xff);
+                data[offset + 1] = (byte)(set >> 8);
+            }
+            catch
+            {
+                ShowError(offset, data.Length);
+                throw new Exception();
+            }
+        }
+
         public static void Fill(byte[] src, byte value, int start, int size)
         {
             for (int i = start; i < size + start; i++)

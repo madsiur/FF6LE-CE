@@ -281,7 +281,7 @@ namespace FF3LE
         {
             if (updatingLevel) return;
 
-            exits.DestinationShort = (byte)exitShortDestination.SelectedIndex;
+            exits.DestinationShort = (ushort)exitShortDestination.SelectedIndex;
         }
         private void exitDestinationXCoord_ValueChanged(object sender, EventArgs e)
         {
@@ -443,7 +443,7 @@ namespace FF3LE
         {
             if (updatingLevel) return;
 
-            exits.DestinationLong = (byte)exitLongDestination.SelectedIndex;
+            exits.DestinationLong = (ushort)exitLongDestination.SelectedIndex;
         }
         private void exitLongDestinationXCoord_ValueChanged(object sender, EventArgs e)
         {
