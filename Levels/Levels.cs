@@ -496,12 +496,7 @@ namespace FF3LE
             for (int i = 0; i < Model.NUM_TILEMAPS; i++)
             {
                 pointer = (i * 3) + Model.BASE_TILEMAP_PTR;
-                offset = (int)(ByteManage.GetInt(model.Data, pointer) + Model.BASE_TILEMAP);
-
-                string s = "e";
-                if (i == 350)
-                    s.ToString();
-
+                offset = (int) (ByteManage.GetInt(model.Data, pointer) + Model.BASE_TILEMAP);
 
                 model.TileMaps[i] = model.Decompress(offset, 0x4000, ref model.TileMapSizes[i]);
 
@@ -2907,6 +2902,9 @@ namespace FF3LE
 
         private void tbMessageName_TextChanged(object sender, EventArgs e)
         {
+            if (updatingLevel)
+                return;
+
             string mess = tbMessageName.Text;
 
             if (mess.Length <= 37)
@@ -2939,6 +2937,9 @@ namespace FF3LE
 
         private void tbLocationName_TextChanged(object sender, EventArgs e)
         {
+            if (updatingLevel)
+                return;
+
             string name = tbLocationName.Text.Trim();
 
             levelNames[currentLevel] = Bits.AddMapId(currentLevel, name);

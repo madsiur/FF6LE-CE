@@ -1055,58 +1055,70 @@ namespace FF3LE
             }
             else
             {
-                DialogResult dr = MessageBox.Show(
-                    "No setting file found... Load ROM memory byte settings? (if version 0.6 was used before)", "FF6LE",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (dr == DialogResult.Yes)
+                List<int[]> faults = ValidateROM(false);
+
+                if (faults.Count > 8)
                 {
-                    ImportWindow iw = new ImportWindow(this);
-                    iw.ShowDialog();
-
-                    if (File.Exists(Settings.Default.SettingsFile))
+                    DialogResult dr = MessageBox.Show(
+                        "Your ROM seem to have been used with the editor expansion. Since no XML setting file is found, you may be coming from version 0.6... If it's the case would you like to import your ROM settings into an XML file necessary for version 0.7 and up?",
+                        "FF6LE",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (dr == DialogResult.Yes)
                     {
-                        try
+                        ImportWindow iw = new ImportWindow(this);
+                        iw.ShowDialog();
+
+                        if (File.Exists(Settings.Default.SettingsFile))
                         {
-                            Model.SettingsFile = XDocument.Load(Settings.Default.SettingsFile);
-                            XElement root = Model.SettingsFile.Element("Settings");
-                            IsExpanded = bool.Parse(root.Element("MapExpansion").Value);
-                            IsChestsExpanded = bool.Parse(root.Element("ChestExpansion").Value);
-
-                            if (IsExpanded)
+                            try
                             {
-                                SIZE_TILEMAP_DATA = int.Parse(root.Element("NumBanksTilemap").Value) << 16;
-                                XElement mapNames = root.Element("MapNames");
-                                LevelNames = new string[mapNames.Elements().Count()];
+                                Model.SettingsFile = XDocument.Load(Settings.Default.SettingsFile);
+                                XElement root = Model.SettingsFile.Element("Settings");
+                                IsExpanded = bool.Parse(root.Element("MapExpansion").Value);
+                                IsChestsExpanded = bool.Parse(root.Element("ChestExpansion").Value);
 
-                                for (int i = 0; i < mapNames.Elements().Count(); i++)
+                                if (IsExpanded)
                                 {
-                                    LevelNames[i] = mapNames.Elements().ElementAt(i).Value;
+                                    SIZE_TILEMAP_DATA = int.Parse(root.Element("NumBanksTilemap").Value) << 16;
+                                    XElement mapNames = root.Element("MapNames");
+                                    LevelNames = new string[mapNames.Elements().Count()];
+
+                                    for (int i = 0; i < mapNames.Elements().Count(); i++)
+                                    {
+                                        LevelNames[i] = mapNames.Elements().ElementAt(i).Value;
+                                    }
+                                }
+
+                                InitExpansionFields(IsExpanded);
+                            }
+                            catch (Exception e)
+                            {
+                                MessageBox.Show("Corrupted XML file. Default values will be loaded.\n\n Error: " +
+                                                e.Message);
+                                InitExpansionFields(false);
+
+                                if (IsExpanded)
+                                {
+                                    LevelNames = ConvertLocNames(Settings.Default.ExpandedLevelNames);
+                                }
+                                else
+                                {
+                                    LevelNames = ConvertLocNames(Settings.Default.LevelNames);
                                 }
                             }
-
-                            InitExpansionFields(IsExpanded);
                         }
-                        catch (Exception e)
+                        else
                         {
-                            MessageBox.Show("Corrupted XML file. Default values will be loaded.\n\n Error: " + e.Message);
                             InitExpansionFields(false);
-
-                            if (IsExpanded)
-                            {
-                                LevelNames = ConvertLocNames(Settings.Default.ExpandedLevelNames);
-                            }
-                            else
-                            {
-                                LevelNames = ConvertLocNames(Settings.Default.LevelNames);
-                            }
+                            LevelNames = ConvertLocNames(Settings.Default.LevelNames);
                         }
+
                     }
                     else
                     {
                         InitExpansionFields(false);
                         LevelNames = ConvertLocNames(Settings.Default.LevelNames);
                     }
-
                 }
                 else
                 {
