@@ -590,7 +590,7 @@ namespace FF3LE
             BASE_LOC_NAMES = Bits.ToAbs((data[0x007FFE] << 16) + ByteManage.GetShort(data, 0x00800D));
             Log.SetEntry("InitFields (isExpanded = " + isExpanded + ")", "Init", "BASE_LOC_NAMES", (data[0x007FFE] << 16) + ByteManage.GetShort(data, 0x00800D));
 
-            tileMaps = tileMaps = new byte[NUM_TILEMAPS][];
+            tileMaps = new byte[NUM_TILEMAPS][];
             editTileMaps = new bool[NUM_TILEMAPS];
             TileMapSizes = new ushort[NUM_TILEMAPS];
         }
@@ -1106,7 +1106,12 @@ namespace FF3LE
                         InitExpansionFields(false);
                         LevelNames = ConvertLocNames(Settings.Default.LevelNames);
                     }
-                    
+
+                }
+                else
+                {
+                    InitExpansionFields(false);
+                    LevelNames = ConvertLocNames(Settings.Default.LevelNames);
                 }
             }
 

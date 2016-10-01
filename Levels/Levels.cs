@@ -498,6 +498,11 @@ namespace FF3LE
                 pointer = (i * 3) + Model.BASE_TILEMAP_PTR;
                 offset = (int)(ByteManage.GetInt(model.Data, pointer) + Model.BASE_TILEMAP);
 
+                string s = "e";
+                if (i == 350)
+                    s.ToString();
+
+
                 model.TileMaps[i] = model.Decompress(offset, 0x4000, ref model.TileMapSizes[i]);
 
                 labelText = "DECOMPRESSING TILE MAP 0x" + i.ToString("X3");

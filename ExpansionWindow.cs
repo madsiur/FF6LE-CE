@@ -109,73 +109,81 @@ namespace FF3LE
         {
             bool valid = true;
             string f = tbLocationFile.Text;
-            DirectoryInfo folders = new DirectoryInfo(Path.GetDirectoryName(f));
-
-            if (!folders.Exists)
+            if (!f.Equals("") && f.Length != 0)
             {
-                valid = false;
-                MessageBox.Show("Folder path does not exists!", "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else if (!Bits.IsValidFilePath(f))
-            {
-                valid = false;
-                MessageBox.Show("Invalid file path!", "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                DirectoryInfo folders = new DirectoryInfo(Path.GetDirectoryName(f));
 
-            if (valid)
-            {
-                filePath = tbLocationFile.Text;
-
-                if (filePath.Length != 0 && !filePath.Equals(""))
+                if (!folders.Exists)
                 {
-                    if (File.Exists(filePath))
+                    valid = false;
+                    MessageBox.Show("Folder path does not exists!", "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else if (!Bits.IsValidFilePath(f))
+                {
+                    valid = false;
+                    MessageBox.Show("Invalid file path!", "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                if (valid)
+                {
+                    filePath = tbLocationFile.Text;
+
+                    if (filePath.Length != 0 && !filePath.Equals(""))
                     {
-                        numBanks = (int) nudBanks.Value;
-
-                        try
+                        if (File.Exists(filePath))
                         {
-                            if (filePath.Equals(Settings.Default.SettingsFile))
-                            {
-                                Model.SettingsFile.Element("Settings").Element("NumBanksTilemap").Value =
-                                    numBanks.ToString();
-                                Model.SettingsFile.Save(filePath);
-                            }
+                            numBanks = (int) nudBanks.Value;
 
+                            try
+                            {
+                                if (filePath.Equals(Settings.Default.SettingsFile))
+                                {
+                                    Model.SettingsFile.Element("Settings").Element("NumBanksTilemap").Value =
+                                        numBanks.ToString();
+                                    Model.SettingsFile.Save(filePath);
+                                }
+
+                                Settings.Default.SettingsFile = filePath;
+                                Settings.Default.Save();
+                                initValues();
+                            }
+                            catch (Exception g)
+                            {
+                                MessageBox.Show(
+                                    "Unable to save XML settings file. You may not have write rights.\n\n  Error: " +
+                                    g.Message, "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        else
+                        {
                             Settings.Default.SettingsFile = filePath;
                             Settings.Default.Save();
-                            initValues();
+
+                            isExpanded = false;
+                            isChestExpanded = false;
+                            isZplus = false;
+                            dataBank = 0xF2;
+                            tilemapBank = 0xF3;
+                            numBanks = 5;
+
+                            btnExpand.Enabled = true;
+                            ckZdPlus.Enabled = true;
+                            tbExpansionData.Enabled = true;
+                            tbExpansionTilemaps.Enabled = true;
+                            btnExpandChests.Enabled = false;
+
+                            nudBanks.Value = numBanks;
+                            tbExpansionData.Text = dataBank.ToString("X2");
+                            tbExpansionTilemaps.Text = tilemapBank.ToString("X2");
+                            ckZdPlus.Checked = isZplus;
                         }
-                        catch (Exception g)
-                        {
-                            MessageBox.Show(
-                                "Unable to save XML settings file. You may not have write rights.\n\n  Error: " +
-                                g.Message, "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                    else
-                    {
-                        Settings.Default.SettingsFile = filePath;
-                        Settings.Default.Save();
-
-                        isExpanded = false;
-                        isChestExpanded = false;
-                        isZplus = false;
-                        dataBank = 0xF2;
-                        tilemapBank = 0xF3;
-                        numBanks = 5;
-
-                        btnExpand.Enabled = true;
-                        ckZdPlus.Enabled = true;
-                        tbExpansionData.Enabled = true;
-                        tbExpansionTilemaps.Enabled = true;
-                        btnExpandChests.Enabled = false;
-
-                        nudBanks.Value = numBanks;
-                        tbExpansionData.Text = dataBank.ToString("X2");
-                        tbExpansionTilemaps.Text = tilemapBank.ToString("X2");
-                        ckZdPlus.Checked = isZplus;
                     }
                 }
+            }
+            else
+            {
+                Settings.Default.SettingsFile = f;
+                Settings.Default.Save();
             }
         }
 
