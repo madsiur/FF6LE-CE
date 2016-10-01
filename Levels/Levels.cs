@@ -148,7 +148,7 @@ namespace FF3LE
                 treasureCheckMem.Minimum = 7712;
             }
 
-            levelNames = GetLevelNames();
+            GetLevelNames();
             this.levelName.Items.AddRange(levelNames);
             this.exitShortDestination.Items.AddRange(levelNames);
             this.exitLongDestination.Items.AddRange(levelNames);
@@ -1259,10 +1259,14 @@ namespace FF3LE
             return final;
         }
 
-        private string[] GetLevelNames()
+        public void GetLevelNames()
         {
-            return Model.IterateLocations(Model.LevelNames);
+            levelNames = new string[Model.LevelNames.Length];
 
+            for (int i = 0; i < levelNames.Length; i++)
+            {
+                levelNames[i] = "[$" + i.ToString("X3") + "] " + Model.LevelNames[i];
+            }
         }
 
         private string[] GetItemNames()
@@ -1521,7 +1525,7 @@ namespace FF3LE
             //madsiur
             int id = (int) ((NumericUpDown) sender).Value;
             levelName.Items.Clear();
-            levelNames = GetLevelNames();
+            GetLevelNames();
             levelName.Items.AddRange(levelNames);
             levelName.SelectedIndex = id < levelNames.Length ? id : 0;
 
@@ -2935,7 +2939,7 @@ namespace FF3LE
             levelNames[currentLevel] = Bits.AddMapId(currentLevel, name);
             Model.LevelNames[currentLevel] = name;
             levelName.Items.Clear();
-            levelNames = GetLevelNames();
+            GetLevelNames();
             levelName.Items.AddRange(levelNames);
             levelName.SelectedIndex = (int)levelNum.Value < levelNames.Length ? (int)levelNum.Value : 0;
 

@@ -1112,18 +1112,6 @@ namespace FF3LE
 
         }
 
-        public static string[] IterateLocations(string[] array)
-        {
-            string[] array2 = new string[array.Length];
-
-            for (int i = 0; i < array.Length; i++)
-            {
-                array2[i] = "[$" + i.ToString("X3") + "] " + array[i];
-            }
-
-            return array2;
-        }
-
         public static void BuildSettingXml(int tilemapBank, int dataBank, int tilemapBankNum, bool mapExpansion, bool chestExpansion, bool isZplus, string[] locNames)
         {
             SettingsFile = new XDocument(new XElement("Settings",
@@ -1137,7 +1125,10 @@ namespace FF3LE
 
             for (int i = 0; i < locNames.Length; i++)
             {
-                SettingsFile.Element("Settings").Element("MapNames").Add(new XElement("Name", locNames[i]));
+                string name = Bits.IsValidMapId(LevelNames[i].Substring(0, 6))
+                        ? LevelNames[i].Substring(6, LevelNames[i].Length - 6).Trim()
+                        : LevelNames[i].Trim();
+                SettingsFile.Element("Settings").Element("MapNames").Add(new XElement("Name", name));
             }
         }
 
@@ -1149,7 +1140,10 @@ namespace FF3LE
 
                 for (int i = 0; i < LevelNames.Length; i++)
                 {
-                    SettingsFile.Element("Settings").Element("MapNames").Add(new XElement("Name", LevelNames[i]));
+                    string name = Bits.IsValidMapId(LevelNames[i].Substring(0, 6))
+                        ? LevelNames[i].Substring(6, LevelNames[i].Length - 6).Trim()
+                        : LevelNames[i].Trim();
+                    SettingsFile.Element("Settings").Element("MapNames").Add(new XElement("Name", name));
                 }
 
                 try
