@@ -51,10 +51,10 @@ namespace FF3LE
                 model.SetFileName(filename);
                 if (model.ReadRom())
                 {
-                    settings.LevelNamesPath = settings.LevelNamesPath.Equals(String.Empty) || settings.LevelNamesPath.Equals(" ") 
-                        || !Bits.IsValidFilePath(settings.LevelNamesPath) || settings.LevelNamesPath.Length == 0
+                    settings.SettingsFile = settings.SettingsFile.Equals(String.Empty) || settings.SettingsFile.Equals(" ") 
+                        || !Bits.IsValidFilePath(settings.SettingsFile) || settings.SettingsFile.Length == 0
                         ? Path.Combine(Environment.CurrentDirectory, "mapnames.bin")
-                        : settings.LevelNamesPath;
+                        : settings.SettingsFile;
 
                     settings.LastRomPath = model.GetPathWithoutFileName();
                     settings.Save();
@@ -72,10 +72,10 @@ namespace FF3LE
             model.SetFileName(filename);
             if (model.ReadRom())
             {
-                settings.LevelNamesPath = settings.LevelNamesPath.Equals(String.Empty) || settings.LevelNamesPath.Equals(" ")
-                        || !Bits.IsValidFilePath(settings.LevelNamesPath) || settings.LevelNamesPath.Length == 0
+                settings.SettingsFile = settings.SettingsFile.Equals(String.Empty) || settings.SettingsFile.Equals(" ")
+                        || !Bits.IsValidFilePath(settings.SettingsFile) || settings.SettingsFile.Length == 0
                         ? Path.Combine(Environment.CurrentDirectory, "mapnames.bin")
-                        : settings.LevelNamesPath;
+                        : settings.SettingsFile;
 
                 settings.LastRomPath = model.GetPathWithoutFileName();
                 settings.Save();
@@ -94,6 +94,7 @@ namespace FF3LE
             Assemble();
             if (model.WriteRom())
             {
+                Model.SaveXML();
                 model.CreateNewMD5Checksum();
                 return true;
             }
@@ -116,6 +117,7 @@ namespace FF3LE
 
                 if (model.WriteRom())
                 {
+                    Model.SaveXML();
                     settings.LastRomPath = model.GetPathWithoutFileName();
                     settings.Save();
                     model.CreateNewMD5Checksum();

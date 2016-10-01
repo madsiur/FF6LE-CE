@@ -15,7 +15,7 @@ namespace FF3LE
 
         public static bool IsValidFilePath(string path)
         {
-            string pattern = @"^(([a-zA-Z]:)|((\\|/){1,2}\w+)\$?)((\\|/)(\w[\w ]*.*))+\.([bin]+)$";
+            string pattern = @"^(([a-zA-Z]:)|((\\|/){1,2}\w+)\$?)((\\|/)(\w[\w ]*.*))+\.([xml]+)$";
 
             return Regex.IsMatch(path, pattern, RegexOptions.CultureInvariant);
         }

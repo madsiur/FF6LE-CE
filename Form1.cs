@@ -111,7 +111,7 @@ namespace FF3LE
 
                 // madsiur [CE Edition 1.0] 
                 Log.InitLog();
-                Model.IsExpanded = AppControl.Model().CheckExpansion();
+                AppControl.Model().CheckExpansion();
 
                 //LoadInitialSettings();
                 AppControl.ClearLevelData();

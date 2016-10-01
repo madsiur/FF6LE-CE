@@ -1522,7 +1522,7 @@ namespace FF3LE
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.aboutToolStripMenuItem.Text = "About...";
             // 
             // panel1
@@ -2762,8 +2762,7 @@ namespace FF3LE
             this.tbLocationName.Name = "tbLocationName";
             this.tbLocationName.Size = new System.Drawing.Size(258, 21);
             this.tbLocationName.TabIndex = 481;
-            this.tbLocationName.Leave += new System.EventHandler(this.tbLocationName_Leave);
-            this.tbLocationName.MouseLeave += new System.EventHandler(this.tbLocationName_MouseLeave);
+            this.tbLocationName.TextChanged += new System.EventHandler(this.tbLocationName_TextChanged);
             // 
             // label117
             // 
@@ -2783,8 +2782,7 @@ namespace FF3LE
             this.tbMessageName.Name = "tbMessageName";
             this.tbMessageName.Size = new System.Drawing.Size(258, 21);
             this.tbMessageName.TabIndex = 479;
-            this.tbMessageName.Leave += new System.EventHandler(this.tbMessageName_Leave);
-            this.tbMessageName.MouseLeave += new System.EventHandler(this.tbMessageName_MouseLeave);
+            this.tbMessageName.TextChanged += new System.EventHandler(this.tbMessageName_TextChanged);
             // 
             // label113
             // 
@@ -7053,7 +7051,6 @@ namespace FF3LE
             this.levelName.Size = new System.Drawing.Size(273, 21);
             this.levelName.TabIndex = 0;
             this.levelName.SelectedIndexChanged += new System.EventHandler(this.levelName_SelectedIndexChanged);
-            this.levelName.MouseEnter += new System.EventHandler(this.levelName_MouseEnter);
             // 
             // panelLevelPicture
             // 

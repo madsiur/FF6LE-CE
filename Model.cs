@@ -8,6 +8,9 @@ using System.Globalization;
 using System.Runtime.Serialization.Formatters.Binary;
 using FF3LE.Properties;
 using System.Collections.Specialized;
+using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace FF3LE
 {
@@ -19,6 +22,12 @@ namespace FF3LE
         // CE Expansions
         public static bool IsExpanded;
         public static bool IsChestsExpanded;
+
+        // Settings file
+        public static XDocument SettingsFile;
+
+        // Map names
+        public static string[] LevelNames;
 
         // Number of entries
         public static int NUM_LOCATIONS;
@@ -245,10 +254,17 @@ namespace FF3LE
         }
         public string RomChecksum()
         {
-            checkSum = 0;
+            int chunk0 = 0;
+            int chunk1 = 0;
             for (int i = 0; i < data.Length; i++)
-                checkSum += data[i];
-            checkSum &= 0xFFFF;
+            {
+                if (i < 0x200000)
+                    chunk0 += data[i];
+                else
+                    chunk1 += data[i];
+            }
+
+            checkSum = (chunk0 + chunk1 + chunk1) & 0xFFFF;
 
             if ((ushort)checkSum == ByteManage.GetShort(data, 0x00FFDE))
                 return "0x" + checkSum.ToString("X") + " (OK)";
@@ -512,8 +528,7 @@ namespace FF3LE
                 SIZE_CHEST_PTR = 0x400;
                 SIZE_CHEST_DATA = 0x827;
                 SIZE_TILEMAP_PTR = 0x5FD;
-
-                SIZE_TILEMAP_DATA = ((data[Settings.Default.MemoryByte] & 0x07) + 4) << 16;
+                
                 SIZE_LOCATION = 0x4200;
                 SIZE_LOC_NAMES = 0x2500;
 
@@ -580,7 +595,7 @@ namespace FF3LE
             TileMapSizes = new ushort[NUM_TILEMAPS];
         }
 
-        public bool ExpandROM(int dataOffset, int tilemapOffset, int memoryOffset, int tilemapSize, bool isZplus)
+        public bool ExpandROM(int dataOffset, int tilemapOffset, int tilemapSize, bool isZplus)
         {
             Log.InitLog();
 
@@ -850,26 +865,10 @@ namespace FF3LE
                 Bits.setAsmArray(data, Expansion.ROM_LOC_NAME_SHORT, 0x4400);
                 Bits.setAsmArray(data, Expansion.ROM_LOC_NAME_BYTE, 0xDA);
 
-                // set memory byte
-                byte mem = (byte)(0x80 + (tilemapSize >> 16) - 4);
-
-                if (isZplus)
-                    mem += 0x40;
-
-                data[Bits.ToAbs(memoryOffset)] = mem;
-
-                Log.SetEntry("Write Memory");
-                Log.SetEntry("In Expansion", "Write Memory", "memoryOffset", memoryOffset);
-                Log.SetEntry("In Expansion", "Write Memory", "mem", mem);
-                
-                string[] names = new string[Settings.Default.ExpandedLevelNames.Count];
-                Settings.Default.ExpandedLevelNames.CopyTo(names, 0);
-                Model.Serialized(IterateLocations(names));
-
                 // load expanded variables values
-                InitExpansionFields(true);
+                //InitExpansionFields(true);
                 
-                IsExpanded = true;
+                //IsExpanded = true;
 
                 Log.SetEntry("END OF LOG " + DateTime.Now.ToString(new CultureInfo("en-US")));
                 Log.WriteLog();
@@ -1011,37 +1010,106 @@ namespace FF3LE
         /// Check if expansion is done and set variable accordingly
         /// </summary>
         /// <returns></returns>
-        public bool CheckExpansion()
+        public void CheckExpansion()
         {
-            byte memByte;
+            IsExpanded = false;
             IsChestsExpanded = false;
 
-            if (Settings.Default.MemoryByte < data.Length)
+            if (File.Exists(Settings.Default.SettingsFile))
             {
-                memByte = data[Settings.Default.MemoryByte];
+                try
+                {
+                    Model.SettingsFile = XDocument.Load(Settings.Default.SettingsFile);
+                    XElement root = Model.SettingsFile.Element("Settings");
+                    IsExpanded = bool.Parse(root.Element("MapExpansion").Value);
+                    IsChestsExpanded = bool.Parse(root.Element("ChestExpansion").Value);
+
+                    if (IsExpanded)
+                    {
+                        SIZE_TILEMAP_DATA = int.Parse(root.Element("NumBanksTilemap").Value) << 16;
+                        XElement mapNames = root.Element("MapNames");
+                        LevelNames = new string[mapNames.Elements().Count()];
+
+                        for (int i = 0; i < mapNames.Elements().Count(); i++)
+                        {
+                            LevelNames[i] = mapNames.Elements().ElementAt(i).Value;
+                        }
+                    }
+
+                    InitExpansionFields(IsExpanded);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("Corrupted XML file. Default values will be loaded.\n\n Error: " + e.Message);
+                    InitExpansionFields(false);
+
+                    if (IsExpanded)
+                    {
+                        LevelNames = ConvertLocNames(Settings.Default.ExpandedLevelNames);
+                    }
+                    else
+                    {
+                        LevelNames = ConvertLocNames(Settings.Default.LevelNames);
+                    }
+                }
             }
             else
             {
-                memByte = data[0x2DC47F];
-            }
-
-            if ((memByte & 0xFF) != 0xFF)
-            {
-                if ((memByte & 0x80) == 0x80)
+                DialogResult dr = MessageBox.Show(
+                    "No setting file found... Load ROM memory byte settings? (if version 0.6 was used before)", "FF6LE",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dr == DialogResult.Yes)
                 {
-                    if((memByte & 0x20) == 0x20)
-                    {
-                        IsChestsExpanded = true;
-                    }
+                    ImportWindow iw = new ImportWindow(this);
+                    iw.ShowDialog();
 
-                    InitExpansionFields(true);
-                    IsExpanded = true;
-                    return true;
+                    if (File.Exists(Settings.Default.SettingsFile))
+                    {
+                        try
+                        {
+                            Model.SettingsFile = XDocument.Load(Settings.Default.SettingsFile);
+                            XElement root = Model.SettingsFile.Element("Settings");
+                            IsExpanded = bool.Parse(root.Element("MapExpansion").Value);
+                            IsChestsExpanded = bool.Parse(root.Element("ChestExpansion").Value);
+
+                            if (IsExpanded)
+                            {
+                                SIZE_TILEMAP_DATA = int.Parse(root.Element("NumBanksTilemap").Value) << 16;
+                                XElement mapNames = root.Element("MapNames");
+                                LevelNames = new string[mapNames.Elements().Count()];
+
+                                for (int i = 0; i < mapNames.Elements().Count(); i++)
+                                {
+                                    LevelNames[i] = mapNames.Elements().ElementAt(i).Value;
+                                }
+                            }
+
+                            InitExpansionFields(IsExpanded);
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show("Corrupted XML file. Default values will be loaded.\n\n Error: " + e.Message);
+                            InitExpansionFields(false);
+
+                            if (IsExpanded)
+                            {
+                                LevelNames = ConvertLocNames(Settings.Default.ExpandedLevelNames);
+                            }
+                            else
+                            {
+                                LevelNames = ConvertLocNames(Settings.Default.LevelNames);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        InitExpansionFields(false);
+                        LevelNames = ConvertLocNames(Settings.Default.LevelNames);
+                    }
+                    
                 }
             }
 
-            InitExpansionFields(false);
-            return false;
         }
 
         public static string[] IterateLocations(string[] array)
@@ -1056,92 +1124,52 @@ namespace FF3LE
             return array2;
         }
 
-        public static bool Serialized(string[] data)
+        public static void BuildSettingXml(int tilemapBank, int dataBank, int tilemapBankNum, bool mapExpansion, bool chestExpansion, bool isZplus, string[] locNames)
         {
-            try
+            SettingsFile = new XDocument(new XElement("Settings",
+                new XElement("MapExpansion", mapExpansion.ToString()),
+                new XElement("ChestExpansion", chestExpansion.ToString()),
+                new XElement("FF6LEPlus", isZplus.ToString()),
+                new XElement("DataBank", dataBank.ToString("X2")),
+                new XElement("TilemapBank", tilemapBank.ToString("X2")),
+                new XElement("NumBanksTilemap", tilemapBankNum.ToString()),
+                new XElement("MapNames")));
+
+            for (int i = 0; i < locNames.Length; i++)
             {
-                using (FileStream fs = new FileStream(Settings.Default.LevelNamesPath, FileMode.Create, FileAccess.ReadWrite))
-                {
-                    BinaryFormatter bf = new BinaryFormatter();
-                    bf.Serialize(fs, data);
-                    return true;
-                }
-            }
-            catch (Exception e)
-            {
-                string fileName = "mapnames.bin";
-                int i = 0;
-
-                string[] locations =
-                {
-                    Path.Combine(Environment.CurrentDirectory, fileName),
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName),
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), fileName),
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), fileName),
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Recent), fileName)
-                };
-
-                MessageBox.Show("Unable to serialize map names. Error: " +  e.Message + ".\n\nAn attempt will be made in " + locations[i], "FF6LE CE", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                while (i < locations.Length)
-                {
-                    try
-                    {
-                        using (FileStream fs = new FileStream(locations[i], FileMode.Create, FileAccess.ReadWrite))
-                        {
-                            BinaryFormatter bf = new BinaryFormatter();
-                            bf.Serialize(fs, data);
-                            Settings.Default.LevelNamesPath = locations[i];
-                            Settings.Default.Save();
-
-                            return true;
-                        }
-                    }
-                    catch (Exception ef)
-                    {
-                        i++;
-
-                        MessageBox.Show(
-                            "Unable to serialize map names (again). Error: " + ef.Message + ".\n\nAn attempt will be made in " +
-                            locations[i], "FF6LE CE", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-
-                return false;
+                SettingsFile.Element("Settings").Element("MapNames").Add(new XElement("Name", locNames[i]));
             }
         }
 
-        //madsiur
-        public static string[] Deserialized()
+        public static void SaveXML()
         {
-            try
+            if (File.Exists(Settings.Default.SettingsFile) && SettingsFile != null)
             {
-                if (File.Exists(Settings.Default.LevelNamesPath))
-                {
-                    using (FileStream fs = new FileStream(Settings.Default.LevelNamesPath, FileMode.Open, FileAccess.Read))
-                    {
-                        BinaryFormatter bf = new BinaryFormatter();
-                        return (string[])bf.Deserialize(fs);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Serialized map names file does not exists!\n\n Can't find " + Settings.Default.LevelNamesPath + ". Default expanded map names will be loaded.", "FF6LE CE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SettingsFile.Element("Settings").Element("MapNames").RemoveNodes();
 
-                    string[] names = new string[Settings.Default.ExpandedLevelNames.Count];
-                    Settings.Default.ExpandedLevelNames.CopyTo(names, 0);
-                    return IterateLocations(names);
+                for (int i = 0; i < LevelNames.Length; i++)
+                {
+                    SettingsFile.Element("Settings").Element("MapNames").Add(new XElement("Name", LevelNames[i]));
                 }
 
+                try
+                {
+                    SettingsFile.Save(Settings.Default.SettingsFile);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(
+                        "Unable to save XML settings file. You may not have write rights or file may not exist.\n\n  Error: " +
+                        e.Message, "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            catch (Exception e)
-            {
-                MessageBox.Show("Error trying to deserialize map names. Default expanded map names will be loaded.\n\nError: " + e.Message, "FF6LE CE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
 
-                string[] names = new string[Settings.Default.ExpandedLevelNames.Count];
-                Settings.Default.ExpandedLevelNames.CopyTo(names, 0);
-                return IterateLocations(names);
-            }
+        public static string[] ConvertLocNames(StringCollection collection)
+        {
+            string[] locNames = new string[collection.Count];
+            collection.CopyTo(locNames, 0);
+            return locNames;
         }
         #endregion
 

@@ -118,25 +118,13 @@ namespace FF3LE.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2999423")]
-        public int MemoryByte {
-            get {
-                return ((int)(this["MemoryByte"]));
-            }
-            set {
-                this["MemoryByte"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LevelNamesPath {
+        public string SettingsFile {
             get {
-                return ((string)(this["LevelNamesPath"]));
+                return ((string)(this["SettingsFile"]));
             }
             set {
-                this["LevelNamesPath"] = value;
+                this["SettingsFile"] = value;
             }
         }
         

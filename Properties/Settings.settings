@@ -26,10 +26,7 @@
     <Setting Name="ZSNESPath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="MemoryByte" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2999423</Value>
-    </Setting>
-    <Setting Name="LevelNamesPath" Type="System.String" Scope="User">
+    <Setting Name="SettingsFile" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="LevelNames" Type="System.Collections.Specialized.StringCollection" Scope="User">

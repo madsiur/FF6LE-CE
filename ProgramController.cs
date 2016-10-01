@@ -146,9 +146,9 @@ namespace FF3LE
         }
 
         //madsiur
-        public bool ExpandRom(int dataOffset, int tilemapOffset, int memoryOffset, int tilemapSize, bool isZplus)
+        public bool ExpandRom(int dataOffset, int tilemapOffset, int tilemapSize, bool isZplus)
         {
-            return model.ExpandROM(dataOffset, tilemapOffset, memoryOffset, tilemapSize, isZplus);
+            return model.ExpandROM(dataOffset, tilemapOffset, tilemapSize, isZplus);
         }
 
         public bool ExpandChests()

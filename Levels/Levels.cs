@@ -165,9 +165,6 @@ namespace FF3LE
 
             InitializeLevel(); // Sets initial control settings
 
-            //madsiur
-            isLevelNameChanged = false;
-
             if (Model.IsExpanded)
             {
                 tbLocationName.Enabled = true;
@@ -1261,17 +1258,13 @@ namespace FF3LE
 
             return final;
         }
-        private string[] GetLevelNames()
-        { 
-            if (Model.IsExpanded)
-            {
-                return Model.Deserialized();
-            }
 
-            string[] names = new string[settings.LevelNames.Count];
-            settings.LevelNames.CopyTo(names, 0);
-            return Model.IterateLocations(names);
+        private string[] GetLevelNames()
+        {
+            return Model.IterateLocations(Model.LevelNames);
+
         }
+
         private string[] GetItemNames()
         {
             byte temp;
@@ -1478,6 +1471,7 @@ namespace FF3LE
 
             levelNum.Value = levelName.SelectedIndex;
         }
+
         private void levelNum_ValueChanged(object sender, EventArgs e)
         {
             if (updatingLevel) return;
@@ -1496,8 +1490,8 @@ namespace FF3LE
             panel27.Hide();
             panel61.Hide();
 
-            levelName.SelectedIndex = currentLevel = (int)levelNum.Value;
-            state.LevelNum = (int)levelNum.Value;
+            levelName.SelectedIndex = currentLevel = (int) levelNum.Value;
+            state.LevelNum = (int) levelNum.Value;
 
             if (currentLevel > 1)
             {
@@ -1525,18 +1519,15 @@ namespace FF3LE
                 wmTileMap.AssembleIntoModel();
 
             //madsiur
-            if(isLevelNameChanged)
-            {
-                isLevelNameChanged = false;
-                int id = (int)((NumericUpDown)sender).Value;
-                levelName.Items.Clear();
-                levelNames = GetLevelNames();
-                levelName.Items.AddRange(levelNames);
-                levelName.SelectedIndex = id < levelNames.Length? id: 0;
-            }
+            int id = (int) ((NumericUpDown) sender).Value;
+            levelName.Items.Clear();
+            levelNames = GetLevelNames();
+            levelName.Items.AddRange(levelNames);
+            levelName.SelectedIndex = id < levelNames.Length ? id : 0;
+
             RefreshLevel.RunWorkerAsync();
 
-            
+
         }
 
         private void buttonToggleProperties_Click(object sender, EventArgs e)
@@ -2905,54 +2896,9 @@ namespace FF3LE
             }
         }
 
-        
-        //madsiur
-        private void tbLocationName_MouseLeave(object sender, EventArgs e)
-        {
-            SetLocationName();
-        }
-
-        private void tbLocationName_Leave(object sender, EventArgs e)
-        {
-            SetLocationName();
-        }
-
-        private void SetLocationName()
-        {
-            if (Model.IsExpanded)
-            {
-                string name = tbLocationName.Text.Trim();
-
-                if (!levelNames[currentLevel].Trim().Equals(name))
-                {
-                    levelNames[currentLevel] = Bits.AddMapId(currentLevel, name);
-
-                    if (Model.Serialized(levelNames))
-                    {
-                        levelName.Items.Clear();
-                        levelNames = GetLevelNames();
-                        levelName.Items.AddRange(levelNames);
-                        levelName.SelectedIndex = (int)levelNum.Value < levelNames.Length ? (int)levelNum.Value : 0;
-                        isLevelNameChanged = true;
-                    }
-                }
-            }
-        }
-
-        private void tbMessageName_MouseLeave(object sender, EventArgs e)
-        {
-            ValidateMessageName();
-        }
-
-        private void tbMessageName_Leave(object sender, EventArgs e)
-        {
-            ValidateMessageName();
-        }
-
-        private void ValidateMessageName()
+        private void tbMessageName_TextChanged(object sender, EventArgs e)
         {
             string mess = tbMessageName.Text;
-            //MatchCollection matches = Bits.GetMatchCollection(mess);
 
             if (mess.Length <= 37)
             {
@@ -2967,9 +2913,9 @@ namespace FF3LE
                 else
                 {
                     messageNames[messageName.SelectedIndex] = mess;
-                    this.messageName.Items.Clear();
-                    this.messageName.Items.AddRange(messageNames);
-                    this.messageName.SelectedIndex = (int)this.message.Value;
+                    messageName.Items.Clear();
+                    messageName.Items.AddRange(messageNames);
+                    messageName.SelectedIndex = (int)this.message.Value;
                 }
             }
             else
@@ -2982,16 +2928,21 @@ namespace FF3LE
             }
         }
 
-        private void levelName_MouseEnter(object sender, EventArgs e)
+        private void tbLocationName_TextChanged(object sender, EventArgs e)
         {
-            if (isLevelNameChanged)
-            {
-                isLevelNameChanged = false;
-                levelName.Items.Clear();
-                levelNames = GetLevelNames();
-                levelName.Items.AddRange(levelNames);
-                levelName.SelectedIndex = (int)levelNum.Value < levelNames.Length ? (int)levelNum.Value : 0;
-            }
+            string name = tbLocationName.Text.Trim();
+
+            levelNames[currentLevel] = Bits.AddMapId(currentLevel, name);
+            Model.LevelNames[currentLevel] = name;
+            levelName.Items.Clear();
+            levelNames = GetLevelNames();
+            levelName.Items.AddRange(levelNames);
+            levelName.SelectedIndex = (int)levelNum.Value < levelNames.Length ? (int)levelNum.Value : 0;
+
+            exitShortDestination.Items.Clear();
+            exitLongDestination.Items.Clear();
+            exitShortDestination.Items.AddRange(levelNames);
+            exitLongDestination.Items.AddRange(levelNames);
         }
 
         private void Levels_FormClosed(object sender, FormClosedEventArgs e)

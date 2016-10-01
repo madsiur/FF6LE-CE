@@ -28,14 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExpansionWindow));
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tbLocationFile = new System.Windows.Forms.TextBox();
             this.btnLocNamesPath = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
-            this.btnOk = new System.Windows.Forms.Button();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.tbExpansionMemory = new System.Windows.Forms.TextBox();
             this.ckZdPlus = new System.Windows.Forms.CheckBox();
             this.btnExpand = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
@@ -46,10 +43,12 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.tbExpansionData = new System.Windows.Forms.TextBox();
+            this.btnOk = new System.Windows.Forms.Button();
             this.ExpFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label9 = new System.Windows.Forms.Label();
             this.btnExpandChests = new System.Windows.Forms.Button();
+            this.btnApply = new System.Windows.Forms.Button();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudBanks)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -60,9 +59,6 @@
             this.groupBox3.Controls.Add(this.tbLocationFile);
             this.groupBox3.Controls.Add(this.btnLocNamesPath);
             this.groupBox3.Controls.Add(this.label8);
-            this.groupBox3.Controls.Add(this.label6);
-            this.groupBox3.Controls.Add(this.label7);
-            this.groupBox3.Controls.Add(this.tbExpansionMemory);
             this.groupBox3.Controls.Add(this.ckZdPlus);
             this.groupBox3.Controls.Add(this.btnExpand);
             this.groupBox3.Controls.Add(this.label5);
@@ -76,7 +72,7 @@
             this.groupBox3.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox3.Location = new System.Drawing.Point(12, 12);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(337, 272);
+            this.groupBox3.Size = new System.Drawing.Size(337, 239);
             this.groupBox3.TabIndex = 9;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Map Expansion";
@@ -84,14 +80,14 @@
             // tbLocationFile
             // 
             this.tbLocationFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbLocationFile.Location = new System.Drawing.Point(13, 198);
+            this.tbLocationFile.Location = new System.Drawing.Point(13, 166);
             this.tbLocationFile.Name = "tbLocationFile";
             this.tbLocationFile.Size = new System.Drawing.Size(310, 20);
             this.tbLocationFile.TabIndex = 18;
             // 
             // btnLocNamesPath
             // 
-            this.btnLocNamesPath.Location = new System.Drawing.Point(219, 167);
+            this.btnLocNamesPath.Location = new System.Drawing.Point(219, 135);
             this.btnLocNamesPath.Name = "btnLocNamesPath";
             this.btnLocNamesPath.Size = new System.Drawing.Size(104, 23);
             this.btnLocNamesPath.TabIndex = 17;
@@ -102,57 +98,17 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(10, 171);
+            this.label8.Location = new System.Drawing.Point(10, 139);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(194, 14);
+            this.label8.Size = new System.Drawing.Size(141, 14);
             this.label8.TabIndex = 16;
-            this.label8.Text = "Expanded location names file path";
-            // 
-            // btnOk
-            // 
-            this.btnOk.Location = new System.Drawing.Point(231, 355);
-            this.btnOk.Name = "btnOk";
-            this.btnOk.Size = new System.Drawing.Size(104, 23);
-            this.btnOk.TabIndex = 15;
-            this.btnOk.Text = "Ok";
-            this.btnOk.UseVisualStyleBackColor = true;
-            this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(246, 111);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(15, 16);
-            this.label6.TabIndex = 14;
-            this.label6.Text = "$";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(10, 112);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(174, 14);
-            this.label7.TabIndex = 13;
-            this.label7.Text = "Expansion memory byte offset";
-            // 
-            // tbExpansionMemory
-            // 
-            this.tbExpansionMemory.Location = new System.Drawing.Point(262, 108);
-            this.tbExpansionMemory.MaxLength = 6;
-            this.tbExpansionMemory.Name = "tbExpansionMemory";
-            this.tbExpansionMemory.Size = new System.Drawing.Size(61, 22);
-            this.tbExpansionMemory.TabIndex = 12;
-            this.tbExpansionMemory.Text = "EDC47F";
-            this.tbExpansionMemory.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.label8.Text = "Project settings file path";
             // 
             // ckZdPlus
             // 
             this.ckZdPlus.AutoSize = true;
             this.ckZdPlus.Enabled = false;
-            this.ckZdPlus.Location = new System.Drawing.Point(13, 136);
+            this.ckZdPlus.Location = new System.Drawing.Point(13, 107);
             this.ckZdPlus.Name = "ckZdPlus";
             this.ckZdPlus.Size = new System.Drawing.Size(267, 18);
             this.ckZdPlus.TabIndex = 11;
@@ -162,7 +118,7 @@
             // btnExpand
             // 
             this.btnExpand.Enabled = false;
-            this.btnExpand.Location = new System.Drawing.Point(219, 234);
+            this.btnExpand.Location = new System.Drawing.Point(219, 202);
             this.btnExpand.Name = "btnExpand";
             this.btnExpand.Size = new System.Drawing.Size(104, 23);
             this.btnExpand.TabIndex = 10;
@@ -265,6 +221,16 @@
             this.tbExpansionData.Text = "F3";
             this.tbExpansionData.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // btnOk
+            // 
+            this.btnOk.Location = new System.Drawing.Point(231, 316);
+            this.btnOk.Name = "btnOk";
+            this.btnOk.Size = new System.Drawing.Size(104, 23);
+            this.btnOk.TabIndex = 15;
+            this.btnOk.Text = "Ok";
+            this.btnOk.UseVisualStyleBackColor = true;
+            this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
+            // 
             // ExpFolderBrowserDialog
             // 
             this.ExpFolderBrowserDialog.RootFolder = System.Environment.SpecialFolder.MyDocuments;
@@ -274,7 +240,7 @@
             this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.btnExpandChests);
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(12, 290);
+            this.groupBox1.Location = new System.Drawing.Point(12, 257);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(337, 53);
             this.groupBox1.TabIndex = 10;
@@ -301,14 +267,26 @@
             this.btnExpandChests.UseVisualStyleBackColor = true;
             this.btnExpandChests.Click += new System.EventHandler(this.btnExpandChests_Click);
             // 
+            // btnApply
+            // 
+            this.btnApply.Location = new System.Drawing.Point(121, 316);
+            this.btnApply.Name = "btnApply";
+            this.btnApply.Size = new System.Drawing.Size(104, 23);
+            this.btnApply.TabIndex = 16;
+            this.btnApply.Text = "Apply Changes";
+            this.btnApply.UseVisualStyleBackColor = true;
+            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
+            // 
             // ExpansionWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(359, 390);
+            this.ClientSize = new System.Drawing.Size(359, 354);
+            this.Controls.Add(this.btnApply);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btnOk);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ExpansionWindow";
             this.Text = "ExpansionWindow";
             this.groupBox3.ResumeLayout(false);
@@ -324,9 +302,6 @@
 
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Button btnOk;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox tbExpansionMemory;
         private System.Windows.Forms.CheckBox ckZdPlus;
         private System.Windows.Forms.Button btnExpand;
         private System.Windows.Forms.Label label5;
@@ -344,5 +319,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button btnExpandChests;
+        private System.Windows.Forms.Button btnApply;
     }
 }

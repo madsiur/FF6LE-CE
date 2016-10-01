@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace FF3LE
 {
@@ -20,14 +21,13 @@ namespace FF3LE
     public partial class ExpansionWindow : Form
     {
         private ProgramController pc;
-        private int memLoc;
-        private byte memByte;
         private int numBanks;
         private int dataBank;
         private int tilemapBank;
         private bool isExpanded;
+        private bool isChestExpanded;
         private bool isZplus;
-        private string filepath;
+        private string filePath;
         private byte a;
 
         public ExpansionWindow(ProgramController pc)
@@ -40,91 +40,74 @@ namespace FF3LE
 
         private void initValues()
         {
-            if (Properties.Settings.Default.MemoryByte < pc.Data().Length)
-            {
-                memLoc = Bits.ToAbs(Settings.Default.MemoryByte);
-            }
-            else
-            {
-                memLoc = 0x2DC47F;
-            }
-
-            memByte = pc.Data()[memLoc];
             isExpanded = false;
             isZplus = false;
+            isChestExpanded = false;
             numBanks = 5;
             dataBank = 0xF2;
             tilemapBank = 0xF3;
-            string file = Settings.Default.LevelNamesPath;
-            filepath = file.Equals("") || file.Length == 0 || file.Equals("") || !Uri.IsWellFormedUriString(file, UriKind.Absolute) ? Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "mapnames.bin") : Properties.Settings.Default.LevelNamesPath;
+            string filePath = Settings.Default.SettingsFile;
+            Model.SettingsFile = null;
 
-            if ((memByte & 0xFF) != 0xFF)
+            if (filePath.Length != 0 && !filePath.Equals(""))
             {
-                if ((memByte & 0x80) == 0x80)
+                if (File.Exists(filePath))
                 {
-                    isExpanded = true;
-
-                    if ((memByte & 0x40) == 0x40)
+                    try
                     {
-                        isZplus = true;
+                        Model.SettingsFile = XDocument.Load(filePath);
+                        XElement root = Model.SettingsFile.Element("Settings");
+                        isExpanded = bool.Parse(root.Element("MapExpansion").Value);
+                        isChestExpanded = bool.Parse(root.Element("ChestExpansion").Value);
+                        isZplus = bool.Parse(root.Element("FF6LEPlus").Value);
+                        dataBank = int.Parse(root.Element("DataBank").Value, NumberStyles.HexNumber);
+                        tilemapBank = int.Parse(root.Element("TilemapBank").Value, NumberStyles.HexNumber);
+                        numBanks = int.Parse(root.Element("NumBanksTilemap").Value);
+
+                        if (isExpanded)
+                        {
+                            btnExpand.Enabled = false;
+                            ckZdPlus.Enabled = false;
+                            tbExpansionData.Enabled = false;
+                            tbExpansionTilemaps.Enabled = false;
+                            btnExpandChests.Enabled = true;
+                        }
+
+                        if (isChestExpanded)
+                        {
+                            btnExpandChests.Enabled = false;
+                        }
                     }
-
-                    numBanks = ((memByte & 0x07) + 4);
-
-                    dataBank = Bits.ToHiROM(ByteManage.GetInt(pc.Data(), 0x0052C3)) >> 16;
-                    tilemapBank = Bits.ToHiROM(pc.Data()[0x0028A4]);
-
-                    if ((memByte & 0x20) != 0x20)
+                    catch (Exception e)
                     {
-                        btnExpandChests.Enabled = true;
-                    }
 
-                    tbExpansionData.Enabled = false;
-                    tbExpansionTilemaps.Enabled = false;
-                    ckZdPlus.Enabled = false;
-                    btnExpand.Enabled = false;
+                        MessageBox.Show("Error readiong XML settings file.\n\n Error: " + e.Message, "FF6LE",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    
                 }
             }
             else
             {
-                tbExpansionData.Enabled = true;
-                tbExpansionTilemaps.Enabled = true;
-                ckZdPlus.Enabled = true;
-                btnExpand.Enabled = true;
+                filePath = Directory.GetCurrentDirectory() + "settings.xml";
             }
 
+            if (numBanks <= 4 || numBanks >= 8)
+            {
+                Model.SettingsFile.Element("Settings").Element("NumBanksTilemap").Value = "5";
+                numBanks = 5;
+            }
+
+            nudBanks.Value = numBanks;
             tbExpansionData.Text = dataBank.ToString("X2");
             tbExpansionTilemaps.Text = tilemapBank.ToString("X2");
-            tbExpansionMemory.Text = Bits.ToHiROM(memLoc).ToString("X6");
             ckZdPlus.Checked = isZplus;
-            nudBanks.Value = numBanks > 4 && numBanks < 8 ? numBanks: 5;
-            tbLocationFile.Text = filepath;
+            tbLocationFile.Text = filePath;
         }
 
-        private void btnOk_Click(object sender, EventArgs e)
+        private void btnApply_Click(object sender, EventArgs e)
         {
             bool valid = true;
-            int memoLoc = 0;
-            if(int.TryParse(tbExpansionMemory.Text, NumberStyles.HexNumber, new NumberFormatInfo(), out memoLoc))
-            {
-                
-
-                if ((memoLoc > 0xC00000 && memoLoc < 0xFFFFFF) || (memoLoc > 0x000000 && memoLoc < 0x6FFFFF))
-                {
-                    memoLoc = Bits.ToAbs(memoLoc);
-                }
-                else
-                {
-                    MessageBox.Show("Invalid memory byte location! Value must between $C00000 to $FFFFFF or $400000 to $6FFFFF.\n\n Current value: $" + tbExpansionMemory.Text);
-                    valid = false;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Invalid memory byte location! Value must between $C00000 to $FFFFFF or $400000 to $6FFFFF.\n\n Current value: $" + tbExpansionMemory.Text);
-                valid = false;
-            }
-
             string f = tbLocationFile.Text;
             DirectoryInfo folders = new DirectoryInfo(Path.GetDirectoryName(f));
 
@@ -139,46 +122,66 @@ namespace FF3LE
                 MessageBox.Show("Invalid file path!", "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-
             if (valid)
             {
-                if ((memByte & 0xFF) != 0xFF)
+                filePath = tbLocationFile.Text;
+
+                if (filePath.Length != 0 && !filePath.Equals(""))
                 {
-
-                    if ((memByte & 0x80) == 0x80)
+                    if (File.Exists(filePath))
                     {
-                        isExpanded = true;
+                        numBanks = (int) nudBanks.Value;
 
-                        if(memoLoc != 0)
+                        try
                         {
-                            Settings.Default.MemoryByte = memoLoc;
+                            if (filePath.Equals(Settings.Default.SettingsFile))
+                            {
+                                Model.SettingsFile.Element("Settings").Element("NumBanksTilemap").Value =
+                                    numBanks.ToString();
+                                Model.SettingsFile.Save(filePath);
+                            }
+
+                            Settings.Default.SettingsFile = filePath;
+                            Settings.Default.Save();
+                            initValues();
                         }
-
-                        Settings.Default.LevelNamesPath = f;
-                        Settings.Default.Save();
-
-                        int s = (memByte & 0x07) + 4;
-
-                        if(s > (int)nudBanks.Value)
+                        catch (Exception g)
                         {
-                            MessageBox.Show("Number of tilemap banks cannot be smaller than in your expanded ROM!", "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else
-                        {
-                            a = (byte)(memByte >> 4);
-                            a = (byte)(a << 4);
-                            a += (byte)((int)nudBanks.Value - 4);
-                            pc.setMemByte(memLoc, a);
+                            MessageBox.Show(
+                                "Unable to save XML settings file. You may not have write rights.\n\n  Error: " +
+                                g.Message, "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     else
                     {
-                        MessageBox.Show("ROM has not done the Editor expansion. Changes will not be saved!", "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        Settings.Default.SettingsFile = filePath;
+                        Settings.Default.Save();
+
+                        isExpanded = false;
+                        isChestExpanded = false;
+                        isZplus = false;
+                        dataBank = 0xF2;
+                        tilemapBank = 0xF3;
+                        numBanks = 5;
+
+                        btnExpand.Enabled = true;
+                        ckZdPlus.Enabled = true;
+                        tbExpansionData.Enabled = true;
+                        tbExpansionTilemaps.Enabled = true;
+                        btnExpandChests.Enabled = false;
+
+                        nudBanks.Value = numBanks;
+                        tbExpansionData.Text = dataBank.ToString("X2");
+                        tbExpansionTilemaps.Text = tilemapBank.ToString("X2");
+                        ckZdPlus.Checked = isZplus;
                     }
                 }
-
-                this.Close();
             }
+        }
+
+        private void btnOk_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         private void btnLocNamesPath_Click(object sender, EventArgs e)
@@ -196,7 +199,7 @@ namespace FF3LE
                 }
                 else
                 {
-                    tbLocationFile.Text = Path.Combine(ExpFolderBrowserDialog.SelectedPath, "mapnames.bin");
+                    tbLocationFile.Text = Path.Combine(ExpFolderBrowserDialog.SelectedPath, "settings.xml");
                 }
             }
         }
@@ -207,11 +210,9 @@ namespace FF3LE
             bool error = false;
             byte dataBank = 0;
             byte tilemapBank = 0;
-            int memoryByte = 0;
 
             string strTilemapBank = tbExpansionTilemaps.Text;
             string strDataBank = tbExpansionData.Text;
-            string strMemoryLocation = tbExpansionMemory.Text;
             string strFileName = tbLocationFile.Text;
             isZplus = ckZdPlus.Checked;
             numBanks = (int) nudBanks.Value;
@@ -298,38 +299,6 @@ namespace FF3LE
                 }
             }
 
-            if ((strMemoryLocation.Equals(String.Empty) || strMemoryLocation.Length == 0) && !error)
-            {
-                message = "Please enter a valid offset for expansion memory byte.";
-                error = true;
-            }
-
-            if (!error)
-            {
-                if (!int.TryParse(strMemoryLocation, NumberStyles.HexNumber, new NumberFormatInfo(), out memoryByte))
-                {
-                    message = "Memory offset is not a number.";
-                    error = true;
-                }
-            }
-
-            if (!error)
-            {
-                byte b = (byte) (memoryByte >> 16);
-
-                
-                if (b < 0x70 && b > Bits.ToAbs(size))
-                {
-                    message = "Your memory byte offset cannot be higher than your filesize.\n\n Current filesize: $" + strSize;
-                    error = true;
-                }
-                else if (b >= 0x70 && b < 0xC0)
-                {
-                    message = "Invalid memory byte offset! Offset must be in the $000000-$6FFFFF or $C00000-$FFFFFF range.";
-                    error = true;
-                }
-            }
-
             if (!error)
             {
                 DirectoryInfo folders = new DirectoryInfo(Path.GetDirectoryName(strFileName));
@@ -338,12 +307,12 @@ namespace FF3LE
                 {
                     if (Bits.IsValidFilePath(strFileName))
                     {
-                        Settings.Default.LevelNamesPath = strFileName;
+                        Settings.Default.SettingsFile = strFileName;
                         Settings.Default.Save();
                     }
                     else
                     {
-                        message = "Invalid file path!";
+                        message = "Invalid setting file path!";
                         error = true;
                     }
                 }
@@ -387,17 +356,30 @@ namespace FF3LE
                         {
                             pc.InitFields();
 
-                            if (pc.ExpandRom(dataOffset, tilemapOffset, memoryByte, tilemapSize, isZplus))
+                            if (pc.ExpandRom(dataOffset, tilemapOffset, tilemapSize, isZplus))
                             {
-                                MessageBox.Show("Expansion completed!", "FF6LE", MessageBoxButtons.OK,
+                                try
+                                {
+                                    string[] locNames = Model.ConvertLocNames(Settings.Default.ExpandedLevelNames);
+                                    Model.BuildSettingXml(Bits.ToHiROM(tilemapBank), Bits.ToHiROM(dataBank), numBanks, true, false, isZplus, locNames);
+                                    Model.SettingsFile.Save(Settings.Default.SettingsFile);
+
+                                    MessageBox.Show("Expansion completed!", "FF6LE", MessageBoxButtons.OK,
                                     MessageBoxIcon.Information);
 
-                                tbExpansionData.Enabled = false;
-                                tbExpansionTilemaps.Enabled = false;
-                                tbExpansionMemory.Enabled = false;
-                                ckZdPlus.Enabled = false;
-                                btnExpand.Enabled = false;
-                                btnExpandChests.Enabled = true;
+                                    tbExpansionData.Enabled = false;
+                                    tbExpansionTilemaps.Enabled = false;
+                                    ckZdPlus.Enabled = false;
+                                    btnExpand.Enabled = false;
+                                    btnExpandChests.Enabled = true;
+                                }
+                                catch (Exception f)
+                                {
+                                    MessageBox.Show(
+                                        "Error creating XML file. You must select a folder with write rights and redo expansion.",
+                                        "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                                
                             }
                             else
                             {
@@ -433,17 +415,29 @@ namespace FF3LE
                             {
                                 pc.InitFields();
 
-                                if (pc.ExpandRom(dataOffset, tilemapOffset, memoryByte, tilemapSize, isZplus))
+                                if (pc.ExpandRom(dataOffset, tilemapOffset, tilemapSize, isZplus))
                                 {
-                                    MessageBox.Show("Expansion completed!", "FF6LE", MessageBoxButtons.OK,
+                                    try
+                                    {
+                                        string[] locNames = Model.ConvertLocNames(Settings.Default.ExpandedLevelNames);
+                                        Model.BuildSettingXml(Bits.ToHiROM(tilemapBank), Bits.ToHiROM(dataBank), numBanks, true, false, isZplus, locNames);
+                                        Model.SettingsFile.Save(Settings.Default.SettingsFile);
+
+                                        MessageBox.Show("Expansion completed!", "FF6LE", MessageBoxButtons.OK,
                                         MessageBoxIcon.Information);
 
-                                    tbExpansionData.Enabled = false;
-                                    tbExpansionTilemaps.Enabled = false;
-                                    tbExpansionMemory.Enabled = false;
-                                    ckZdPlus.Enabled = false;
-                                    btnExpand.Enabled = false;
-                                    btnExpandChests.Enabled = true;
+                                        tbExpansionData.Enabled = false;
+                                        tbExpansionTilemaps.Enabled = false;
+                                        ckZdPlus.Enabled = false;
+                                        btnExpand.Enabled = false;
+                                        btnExpandChests.Enabled = true;
+                                    }
+                                    catch (Exception f)
+                                    {
+                                        MessageBox.Show(
+                                            "Error creating XML file. You must select a folder with write rights and redo expansion.",
+                                            "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    }
                                 }
                                 else
                                 {
@@ -481,11 +475,24 @@ namespace FF3LE
                 {
                     if (pc.ExpandChests())
                     {
-                        byte mem = pc.Data()[memLoc];
-                        mem += 0x20;
-                        pc.setMemByte(memLoc, mem);
-                        MessageBox.Show("Chest memory expansion completed!", "FF6LE", MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
+                        try
+                        {
+                            if (Model.SettingsFile != null)
+                            {
+                                Model.SettingsFile.Element("Settings").Element("ChestExpansion").Value = true.ToString();
+                                Model.SettingsFile.Save(Settings.Default.SettingsFile);
+                                btnExpandChests.Enabled = false;
+                            }
+
+                            MessageBox.Show("Chest memory expansion completed!", "FF6LE", MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }
+                        catch (Exception g)
+                        {
+                            MessageBox.Show(
+                            "Unable to save XML settings file. You may not have write rights or file may not exist.\n\n  Error: " +
+                            g.Message, "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
                 }
                 else
@@ -508,16 +515,31 @@ namespace FF3LE
                     {
                         if (pc.ExpandChests())
                         {
-                            byte mem = pc.Data()[memLoc];
-                            mem += 0x20;
-                            pc.setMemByte(memLoc, mem);
+                            try
+                            {
+                                if (Model.SettingsFile != null)
+                                {
+                                    Model.SettingsFile.Element("Settings").Element("ChestExpansion").Value = true.ToString();
+                                    Model.SettingsFile.Save(Settings.Default.SettingsFile);
+                                    btnExpandChests.Enabled = false;
+                                }
 
-                            MessageBox.Show("Chest memory expansion completed!", "FF6LE", MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                                MessageBox.Show("Chest memory expansion completed!", "FF6LE", MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
+                            }
+                            catch (Exception g)
+                            {
+                                MessageBox.Show(
+                                "Unable to save XML settings file. You may not have write rights or file may not exist.\n\n  Error: " +
+                                g.Message, "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+
                         }
                     }
                 }
             }
         }
+
+
     }
 }
