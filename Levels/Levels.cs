@@ -65,11 +65,6 @@ namespace FF3LE
         private int replaceWith;
 
         private string[] levelNames, itemNames, messageNames;
-        private MatchCollection matches;
-
-        //madsiur
-        bool isLevelNameChanged;
-        bool isUpdatingMessageName;
 
         private string[] dialogueTable = new string[]
             {
@@ -1144,7 +1139,7 @@ namespace FF3LE
                                 {
                                     MessageBox.Show("Unable to save message name " + index.ToString("X3") + " \"" +
                                                     messageNames[index] +
-                                                    "\"). Default entry \"INN\" will be saved instead.");
+                                                    "\"). Default entry \"INN\" will be saved instead.", Model.APPNAME, MessageBoxButtons.OK);
 
                                     error = true;
                                 }
@@ -1925,7 +1920,7 @@ namespace FF3LE
 
             if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
 
-            FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create, FileAccess.ReadWrite); ;
+            FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create, FileAccess.ReadWrite);
             BinaryWriter bw = new BinaryWriter(fs);
 
             if (currentLevel == 0)
@@ -1954,7 +1949,7 @@ namespace FF3LE
 
             if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
 
-            FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create, FileAccess.ReadWrite); ;
+            FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create, FileAccess.ReadWrite);
             BinaryWriter bw = new BinaryWriter(fs);
 
             tileMap.AssembleIntoModel();
@@ -1970,7 +1965,7 @@ namespace FF3LE
 
             if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
 
-            FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create, FileAccess.ReadWrite); ;
+            FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create, FileAccess.ReadWrite);
             BinaryWriter bw = new BinaryWriter(fs);
 
             tileMap.AssembleIntoModel();
@@ -2911,7 +2906,7 @@ namespace FF3LE
             {
                 if (!Bits.IsValidMapName(mess))
                 {
-                    MessageBox.Show("Invalid Message name: \"" + tbMessageName.Text + "\". For allowed characters, see readme.", "FF6LE",
+                    MessageBox.Show("Invalid Message name: \"" + tbMessageName.Text + "\". For allowed characters, see readme.", Model.APPNAME,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
                     tbMessageName.Text = messageNames[messageName.SelectedIndex];
@@ -2928,7 +2923,7 @@ namespace FF3LE
             else
             {
                 MessageBox.Show("Invalid Message Name length. Message Name byte count must be inferior or equal to 37.",
-                    "FF6LE",
+                    Model.APPNAME,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 tbMessageName.Text = messageNames[messageName.SelectedIndex];
                 tbMessageName.Focus();

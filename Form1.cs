@@ -47,7 +47,7 @@ namespace FF3LE
             }
             catch (Exception e)
             {
-                MessageBox.Show("ERROR: " + e.Message);
+                MessageBox.Show("ERROR: " + e.Message, Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         private void LoadSettingsFromRegistry()
@@ -100,7 +100,7 @@ namespace FF3LE
                 }
 
                 if (AppControl.GameCode() != "F6  ")
-                    MessageBox.Show("The game code for this ROM is invalid. There are likely to be problems when editing the ROM.", "WARNING: Invalid Game Code", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("The game code for this ROM is invalid. There are likely to be problems when editing the ROM.", Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
                 //this.saveToolStripMenuItem.Enabled = true;
                 //this.saveAsToolStripMenuItem.Enabled = true;
@@ -159,7 +159,7 @@ namespace FF3LE
             if (AppControl.SaveRomFileAs())
                 UpdateRomInfo();
             else
-                MessageBox.Show("There was an error saving. Try again.", "SAVE ERROR", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("There was an error saving. Try again.", Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -208,7 +208,7 @@ namespace FF3LE
             }
             else
             {
-                MessageBox.Show("You need an expanded ROM of at least $400000 bytes.\n\n" + "Current size: $" + AppControl.GetFileSize().ToString("X6"));
+                MessageBox.Show("You need an expanded ROM of at least $400000 bytes.\n\n" + "Current size: $" + AppControl.GetFileSize().ToString("X6"), Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
     }

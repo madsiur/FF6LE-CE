@@ -101,36 +101,36 @@ namespace FF3LE
                                 {
                                     MessageBox.Show(
                                         "Unable to save XML settings file. You may not have write rights or file may not exist.\n\n  Error: " +
-                                        g.Message, "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        g.Message, Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 }
 
                             }
                             else
                             {
                                 MessageBox.Show("ROM is not expanded according to memory byte. Operation has stopped.",
-                                    "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                    Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             }
                         }
                         else
                         {
-                            MessageBox.Show("Invalid memory byte offset.", "FF6LE", MessageBoxButtons.OK,
+                            MessageBox.Show("Invalid memory byte offset.", Model.APPNAME, MessageBoxButtons.OK,
                                 MessageBoxIcon.Exclamation);
                         }
                     }
                     else
                     {
-                        MessageBox.Show("Invalid memory byte offset.", "FF6LE", MessageBoxButtons.OK,
+                        MessageBox.Show("Invalid memory byte offset.", Model.APPNAME, MessageBoxButtons.OK,
                             MessageBoxIcon.Exclamation);
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Invalid memory byte offset.", "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("Invalid memory byte offset.", Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
             }
             else
             {
-                MessageBox.Show("Invalid settings file path.", "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Invalid settings file path.", Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -156,7 +156,7 @@ namespace FF3LE
                 }
                 catch (SerializationException f)
                 {
-                    MessageBox.Show("Failed to deserialize.\n\n Error: " + f.Message, "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Failed to deserialize.\n\n Error: " + f.Message, Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
                 {

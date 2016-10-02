@@ -19,6 +19,7 @@ namespace FF3LE
     {
         #region CE expansion variables
 
+        public const string APPNAME = "FF6LE Rogue CE";
         // CE Expansions
         public static bool IsExpanded;
         public static bool IsChestsExpanded;
@@ -526,7 +527,7 @@ namespace FF3LE
                 SIZE_LONG_EXIT_PTR = 0x402;
                 SIZE_LONG_EXIT_DATA = 0xBFF;
                 SIZE_CHEST_PTR = 0x400;
-                SIZE_CHEST_DATA = 0x827;
+                SIZE_CHEST_DATA = 0x1000;
                 SIZE_TILEMAP_PTR = 0x5FD;
                 
                 SIZE_LOCATION = 0x4200;
@@ -897,7 +898,7 @@ namespace FF3LE
             }
             catch (Exception e)
             {
-                MessageBox.Show("Unable to perform chest expansion.\n\n Error: " + e.Message, "FF6LE",
+                MessageBox.Show("Unable to perform chest expansion.\n\n Error: " + e.Message, Model.APPNAME,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 return false;
@@ -1040,7 +1041,7 @@ namespace FF3LE
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Corrupted XML file. Default values will be loaded.\n\n Error: " + e.Message);
+                    MessageBox.Show("Corrupted XML file. Default values will be loaded.\n\n Error: " + e.Message, Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     InitExpansionFields(false);
 
                     if (IsExpanded)
@@ -1055,13 +1056,14 @@ namespace FF3LE
             }
             else
             {
+                InitExpansionFields(false);
                 List<int[]> faults = ValidateROM(false);
 
                 if (faults.Count > 8)
                 {
                     DialogResult dr = MessageBox.Show(
                         "Your ROM seem to have been used with the editor expansion. Since no XML setting file is found, you may be coming from version 0.6... If it's the case would you like to import your ROM settings into an XML file necessary for version 0.7 and up?",
-                        "FF6LE",
+                        Model.APPNAME,
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (dr == DialogResult.Yes)
                     {
@@ -1094,7 +1096,7 @@ namespace FF3LE
                             catch (Exception e)
                             {
                                 MessageBox.Show("Corrupted XML file. Default values will be loaded.\n\n Error: " +
-                                                e.Message);
+                                                e.Message, Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 InitExpansionFields(false);
 
                                 if (IsExpanded)
@@ -1171,7 +1173,7 @@ namespace FF3LE
                 {
                     MessageBox.Show(
                         "Unable to save XML settings file. You may not have write rights or file may not exist.\n\n  Error: " +
-                        e.Message, "FF6LE", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        e.Message, Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

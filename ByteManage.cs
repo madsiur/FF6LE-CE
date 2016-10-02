@@ -15,7 +15,7 @@ namespace FF3LE
             }
             catch
             {
-                MessageBox.Show("Error reading from byte[] data at offset " + offset + " \n data size: " + data.Length + "\n Please report this", "Error", MessageBoxButtons.OK);
+                MessageBox.Show("Error reading from byte[] data at offset " + offset.ToString("X6") + " \n data size: " + data.Length.ToString("X6") + "\n Please report this", Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw new Exception();
             }
         }
@@ -30,7 +30,7 @@ namespace FF3LE
 
             catch
             {
-                MessageBox.Show("Error reading short from byte[] data at offset " + offset + " \n data size: " + data.Length, "Error", MessageBoxButtons.OK);
+                MessageBox.Show("Error reading short from byte[] data at offset " + offset.ToString("X6") + " \n data size: " + data.Length.ToString("X6"), Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw new Exception();
             }
             return ret;
@@ -48,7 +48,7 @@ namespace FF3LE
 
             catch
             {
-                MessageBox.Show("Error reading short from byte[] data at offset " + offset + " \n data size: " + data.Length, "Error", MessageBoxButtons.OK);
+                MessageBox.Show("Error reading short from byte[] data at offset " + offset.ToString("X6") + " \n data size: " + data.Length.ToString("X6"), Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw new Exception();
             }
             return ret;
@@ -63,7 +63,7 @@ namespace FF3LE
             }
             catch
             {
-                MessageBox.Show("GetBit error reading from byte[] data at offset " + offset + " \n Data size: " + data.Length + "\n Please report this", "Error", MessageBoxButtons.OK);
+                MessageBox.Show("GetBit error reading from byte[] data at offset " + offset.ToString("X6") + " \n Data size: " + data.Length.ToString("X6") + "\n Please report this", Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw new Exception();
             }
         }
@@ -77,7 +77,7 @@ namespace FF3LE
             }
             catch
             {
-                MessageBox.Show("GetBit error reading from byte[] data at offset " + " \n Data size: " + "\n Please report this", "Error", MessageBoxButtons.OK);
+                MessageBox.Show("GetBit error reading from byte[] data. Please report this", Model.APPNAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw new Exception();
             }
         }

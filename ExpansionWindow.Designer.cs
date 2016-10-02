@@ -45,10 +45,10 @@
             this.tbExpansionData = new System.Windows.Forms.TextBox();
             this.btnOk = new System.Windows.Forms.Button();
             this.ExpFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.btnExpandChests = new System.Windows.Forms.Button();
             this.btnApply = new System.Windows.Forms.Button();
+            this.btnExpandChests = new System.Windows.Forms.Button();
+            this.label9 = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudBanks)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -235,26 +235,15 @@
             // 
             this.ExpFolderBrowserDialog.RootFolder = System.Environment.SpecialFolder.MyDocuments;
             // 
-            // groupBox1
+            // btnApply
             // 
-            this.groupBox1.Controls.Add(this.label9);
-            this.groupBox1.Controls.Add(this.btnExpandChests);
-            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(12, 257);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(337, 53);
-            this.groupBox1.TabIndex = 10;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Chest Expansion";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 25);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(196, 14);
-            this.label9.TabIndex = 19;
-            this.label9.Text = "Expand chests bits ($1E20-$1E7F)";
+            this.btnApply.Location = new System.Drawing.Point(121, 316);
+            this.btnApply.Name = "btnApply";
+            this.btnApply.Size = new System.Drawing.Size(104, 23);
+            this.btnApply.TabIndex = 16;
+            this.btnApply.Text = "Apply Changes";
+            this.btnApply.UseVisualStyleBackColor = true;
+            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
             // 
             // btnExpandChests
             // 
@@ -267,15 +256,26 @@
             this.btnExpandChests.UseVisualStyleBackColor = true;
             this.btnExpandChests.Click += new System.EventHandler(this.btnExpandChests_Click);
             // 
-            // btnApply
+            // label9
             // 
-            this.btnApply.Location = new System.Drawing.Point(121, 316);
-            this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(104, 23);
-            this.btnApply.TabIndex = 16;
-            this.btnApply.Text = "Apply Changes";
-            this.btnApply.UseVisualStyleBackColor = true;
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 25);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(196, 14);
+            this.label9.TabIndex = 19;
+            this.label9.Text = "Expand chests bits ($1E20-$1E7F)";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label9);
+            this.groupBox1.Controls.Add(this.btnExpandChests);
+            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Location = new System.Drawing.Point(12, 257);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(337, 53);
+            this.groupBox1.TabIndex = 10;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Chest Expansion";
             // 
             // ExpansionWindow
             // 
@@ -316,9 +316,9 @@
         private System.Windows.Forms.Button btnLocNamesPath;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.FolderBrowserDialog ExpFolderBrowserDialog;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Button btnExpandChests;
         private System.Windows.Forms.Button btnApply;
+        private System.Windows.Forms.Button btnExpandChests;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.GroupBox groupBox1;
     }
 }
