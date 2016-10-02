@@ -1144,9 +1144,9 @@ namespace FF3LE
 
             for (int i = 0; i < locNames.Length; i++)
             {
-                string name = Bits.IsValidMapId(LevelNames[i].Substring(0, 6))
-                        ? LevelNames[i].Substring(6, LevelNames[i].Length - 6).Trim()
-                        : LevelNames[i].Trim();
+                string name = locNames[i].Length < 6 ? locNames[i]: Bits.IsValidMapId(locNames[i].Substring(0, 6))
+                        ? locNames[i].Substring(6, locNames[i].Length - 6).Trim()
+                        : locNames[i].Trim();
                 SettingsFile.Element("Settings").Element("MapNames").Add(new XElement("Name", name));
             }
         }
