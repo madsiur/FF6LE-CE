@@ -350,14 +350,9 @@ namespace FF3LE
                 SetPaletteSetImage();
             }
 
-            if (Model.IsExpanded)
-            {
-                tbLocationName.Text = Bits.IsValidMapId(levelNames[currentLevel].Substring(0, 6))
-                    ? levelNames[currentLevel].Substring(6, levelNames[currentLevel].Length - 6).Trim()
-                    : levelNames[currentLevel].Trim();
-            }
 
-            tbMessageName.Text = messageNames[layer.MessageBox];
+
+            
         }
         private void RefreshLevel_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {

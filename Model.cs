@@ -867,9 +867,9 @@ namespace FF3LE
                 Bits.setAsmArray(data, Expansion.ROM_LOC_NAME_BYTE, 0xDA);
 
                 // load expanded variables values
-                //InitExpansionFields(true);
-                
-                //IsExpanded = true;
+                InitExpansionFields(true);
+                SIZE_TILEMAP_DATA = tilemapSize;
+                IsExpanded = true;
 
                 Log.SetEntry("END OF LOG " + DateTime.Now.ToString(new CultureInfo("en-US")));
                 Log.WriteLog();
@@ -1159,7 +1159,7 @@ namespace FF3LE
 
                 for (int i = 0; i < LevelNames.Length; i++)
                 {
-                    string name = Bits.IsValidMapId(LevelNames[i].Substring(0, 6))
+                    string name = LevelNames[i].Length < 6 ? LevelNames[i]: Bits.IsValidMapId(LevelNames[i].Substring(0, 6))
                         ? LevelNames[i].Substring(6, LevelNames[i].Length - 6).Trim()
                         : LevelNames[i].Trim();
                     SettingsFile.Element("Settings").Element("MapNames").Add(new XElement("Name", name));

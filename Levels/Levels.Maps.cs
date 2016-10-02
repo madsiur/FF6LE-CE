@@ -106,6 +106,14 @@ namespace FF3LE
             this.layerUnknownBits.SetItemChecked(5, layer.Byte6bit1);
             this.layerUnknownBits.SetItemChecked(6, layer.Byte6bit7);
             this.layerByte17.Value = layer.Byte17;
+            tbMessageName.Text = messageNames[layer.MessageBox];
+
+            if (Model.IsExpanded)
+            {
+                tbLocationName.Text = levelNames[currentLevel].Length < 6 ? levelNames[currentLevel].Trim(): Bits.IsValidMapId(levelNames[currentLevel].Substring(0, 6))
+                    ? levelNames[currentLevel].Substring(6, levelNames[currentLevel].Length - 6).Trim()
+                    : levelNames[currentLevel].Trim();
+            }
 
             updatingLevel = false;
         }
