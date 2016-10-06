@@ -6765,7 +6765,7 @@ namespace FF3LE
             this.entranceEvent.Hexadecimal = true;
             this.entranceEvent.Location = new System.Drawing.Point(77, 19);
             this.entranceEvent.Maximum = new decimal(new int[] {
-            262143,
+            3538942,
             0,
             0,
             0});
@@ -6826,7 +6826,7 @@ namespace FF3LE
             this.eventEventNum.Hexadecimal = true;
             this.eventEventNum.Location = new System.Drawing.Point(77, 55);
             this.eventEventNum.Maximum = new decimal(new int[] {
-            262143,
+            3538942,
             0,
             0,
             0});
