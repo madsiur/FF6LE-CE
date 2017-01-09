@@ -367,8 +367,8 @@ namespace FF3LE
                             {
                                 try
                                 {
-                                    string[] locNames = Model.ConvertLocNames(Settings.Default.ExpandedLevelNames);
-                                    Model.BuildSettingXml(Bits.ToHiROM(tilemapBank), Bits.ToHiROM(dataBank), numBanks, true, false, isZplus, locNames);
+                                    Model.LevelNames = Model.ConvertLocNames(Settings.Default.ExpandedLevelNames);
+                                    Model.BuildSettingXml(Bits.ToHiROM(tilemapBank), Bits.ToHiROM(dataBank), numBanks, true, false, isZplus, Model.LevelNames);
                                     Model.SettingsFile.Save(Settings.Default.SettingsFile);
 
                                     MessageBox.Show("Expansion completed!", Model.APPNAME, MessageBoxButtons.OK,
@@ -426,8 +426,8 @@ namespace FF3LE
                                 {
                                     try
                                     {
-                                        string[] locNames = Model.ConvertLocNames(Settings.Default.ExpandedLevelNames);
-                                        Model.BuildSettingXml(Bits.ToHiROM(tilemapBank), Bits.ToHiROM(dataBank), numBanks, true, false, isZplus, locNames);
+                                        Model.LevelNames = Model.ConvertLocNames(Settings.Default.ExpandedLevelNames);
+                                        Model.BuildSettingXml(Bits.ToHiROM(tilemapBank), Bits.ToHiROM(dataBank), numBanks, true, false, isZplus, Model.LevelNames);
                                         Model.SettingsFile.Save(Settings.Default.SettingsFile);
 
                                         MessageBox.Show("Expansion completed!", Model.APPNAME, MessageBoxButtons.OK,

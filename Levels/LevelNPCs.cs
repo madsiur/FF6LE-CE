@@ -280,6 +280,10 @@ namespace FF3LE
             int bank = data[npc.SpriteNum * 2 + 0x00D23C]; bank -= 0xC0;
             int size = data[npc.SpriteNum * 2 + 0x00D23D];
 
+            /*int pointer = ByteManage.GetShort(data, npc.SpriteNum * 2 + 0x44FC00);
+            int bank = data[npc.SpriteNum * 2 + 0x44FE00];
+            int size = data[npc.SpriteNum * 2 + 0x44FE01];*/
+
             int offset = (bank << 16) + pointer;
 
             switch (npc.Facing)

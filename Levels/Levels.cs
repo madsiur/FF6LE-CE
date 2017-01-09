@@ -932,10 +932,10 @@ namespace FF3LE
             offset = 0x1E0000;
             for (int i = 0; i < model.TileSets.Length; i++)
             {
-                if (model.EditTileMaps[i])
+                if (model.EditTileSets[i])
                 {
                     compressed = new byte[0x800];
-                    size = model.Compress(model.TileSets[i], compressed);
+                    size = model.CompressT(model.TileSets[i], compressed);
                 }
                 else
                 {
